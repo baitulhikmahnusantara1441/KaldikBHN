@@ -798,24 +798,70 @@ function deleteEv(){
 // ════════════════════════════════════════════════
 function buildBook(){
   const gfFilter=document.getElementById('book-gf')?.value||'';
-  const taFilter=document.getElementById('book-ta')?.value||currentTA;
-  const evs=EVENTS.filter(e=>!gfFilter||e.ghurfah===gfFilter||!e.ghurfah);
+  const taFilter=(document.getElementById('book-ta')?.value||currentTA).trim();
+
+  // Parse TA year range, e.g. "2025–2026" or "2025-2026"
+  const taMatch=taFilter.match(/(\d{4})[–\-](\d{4})/);
+  const taYearStart=taMatch?parseInt(taMatch[1]):null;
+  const taYearEnd=taMatch?parseInt(taMatch[2]):null;
+
+  // Build all months for this TA: Oct taYearStart – Sep taYearEnd (13 months)
+  const taMonths=[];
+  if(taYearStart&&taYearEnd){
+    // Standard BHN academic year: Oct (taYearStart) → Sep (taYearEnd)
+    for(let i=9;i<=11;i++) taMonths.push(`${taYearStart}-${pad(i+1)}`);
+    for(let i=0;i<=8;i++) taMonths.push(`${taYearEnd}-${pad(i+1)}`);
+  }
+
+  // Filter events: only events within the selected TA year range
+  const evs=EVENTS.filter(e=>{
+    if(gfFilter&&e.ghurfah!==gfFilter&&e.ghurfah!=='') return false;
+    if(taYearStart&&taYearEnd){
+      const y=parseInt(e.tanggal.slice(0,4));
+      const m=parseInt(e.tanggal.slice(5,7));
+      // Oct taYearStart to Sep taYearEnd
+      if(y===taYearStart&&m>=10) return true;
+      if(y===taYearEnd&&m<=9) return true;
+      if(y>taYearStart&&y<taYearEnd) return true;
+      return false;
+    }
+    return true;
+  });
+
+  // Build byM only for taMonths (show all months even if empty)
   const byM={};
-  evs.forEach(e=>{const k=e.tanggal.slice(0,7);(byM[k]=byM[k]||[]).push(e);});
-  const keys=Object.keys(byM).sort();
+  taMonths.forEach(ym=>byM[ym]=[]);
+  evs.forEach(e=>{const k=e.tanggal.slice(0,7);if(byM[k]!==undefined)(byM[k]=byM[k]||[]).push(e);});
+
+  // Keys: use taMonths order if TA selected, else derive from events
+  const keys=taMonths.length?taMonths:Object.keys(byM).sort();
+
   if(!keys.length){document.getElementById('book-pages').innerHTML='<div style="text-align:center;padding:60px;color:#888;font-family:sans-serif;font-size:14px">Belum ada agenda. Upload proker atau tambah manual terlebih dahulu.</div>';return;}
   let html='';
-  // COVER
-  html+=`<div class="page"><div class="cover">
+  // ── COVER ──
+  html+=`<div class="page"><div class="cover" style="background:linear-gradient(135deg,#0d2137 0%,#1B4F72 50%,#0d2137 100%);">
     <div class="cov-arc"></div><div class="cov-arc2"></div>
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(201,162,39,.18),transparent 60%),radial-gradient(ellipse at 80% 70%,rgba(27,79,114,.5),transparent 50%);"></div>
     <div class="cov-inner">
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;">
+        <div style="width:48px;height:48px;background:linear-gradient(135deg,#C9A227,#e8b830);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 20px rgba(201,162,39,.4);">📚</div>
+      </div>
       <div class="cov-lbl">Dokumen Resmi · Baitul Hikmah Nusantara</div>
       <div class="cov-title">BAITUL HIKMAH<br>NUSANTARA</div>
       <div class="cov-sub">Bogor, Jawa Barat · Lembaga Ilmu & Peradaban</div>
       <div class="cov-div"></div>
-      <div class="cov-ta">KALENDER AKADEMIK</div>
-      <div class="cov-ta-s">TAHUN AKADEMIK ${taFilter}</div>
-      <div class="cov-gf">${Object.keys(GC).map(g=>`<span>${g}</span>`).join('')}</div>
+      <div style="background:rgba(201,162,39,.12);border:1px solid rgba(201,162,39,.3);border-radius:12px;padding:14px 28px;display:inline-block;margin-bottom:8px;">
+        <div class="cov-ta">KALENDER AKADEMIK</div>
+        <div class="cov-ta-s">TAHUN AKADEMIK ${taFilter}</div>
+      </div>
+      <div class="cov-gf">${Object.keys(GC).map(g=>`<span style="background:rgba(255,255,255,.05)">${g}</span>`).join('')}</div>
+      <div style="margin-top:20px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        ${[
+          {n:evs.length,l:'Agenda',c:'#C9A227'},
+          {n:keys.filter(k=>byM[k]?.length>0).length,l:'Bulan Aktif',c:'#2ECC71'},
+          {n:new Set(evs.filter(e=>e.ghurfah).map(e=>e.ghurfah)).size,l:'Ghurfah',c:'#3498DB'},
+        ].map(s=>`<div style="text-align:center;"><div style="font-size:20px;font-weight:800;color:${s.c};font-family:sans-serif">${s.n}</div><div style="font-size:9px;color:rgba(255,255,255,.5);letter-spacing:1px;font-family:sans-serif">${s.l}</div></div>`).join('<div style="width:1px;background:rgba(255,255,255,.1)"></div>')}
+      </div>
     </div>
     <div class="cov-bot">BAITUL HIKMAH NUSANTARA · KALDIK ${taFilter}</div>
   </div></div>`;
@@ -890,30 +936,77 @@ function buildBook(){
       </div>
     </div></div>`;
   });
-  // LEGENDA
-  html+=`<div class="page" style="min-height:210mm;display:flex;flex-direction:column;">
-    <div style="background:linear-gradient(135deg,#1B4F72,#0f2d47);padding:18px 28px">
-      <div style="font-size:9px;letter-spacing:3px;color:rgba(201,162,39,.7);font-family:sans-serif;text-transform:uppercase">Panduan</div>
-      <div style="font-size:20px;font-weight:800;color:#C9A227;font-family:sans-serif">Legenda & Keterangan</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:22px 28px;flex:1;font-family:sans-serif">
+  // ── LEGENDA ──
+  const totalRABEvs=evs.filter(e=>e.rab);
+  html+=`<div class="page" style="min-height:210mm;display:flex;flex-direction:column;font-family:sans-serif;">
+    <div style="background:linear-gradient(135deg,#0d2137,#1B4F72,#0d2137);padding:20px 28px;display:flex;align-items:center;gap:16px;">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#C9A227,#e8b830);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📋</div>
       <div>
-        <div style="font-size:8px;letter-spacing:2px;font-weight:700;color:#1B4F72;text-transform:uppercase;border-bottom:2px solid #C9A227;padding-bottom:4px;margin-bottom:10px">Kategori Kegiatan</div>
-        ${Object.entries(KAT).map(([k,v])=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:.5px solid #f0f0f0"><span style="width:12px;height:12px;border-radius:3px;background:${v.bg};border:1.5px solid ${v.color};flex-shrink:0;display:inline-block"></span><span style="font-size:10px;color:${v.color};font-weight:600">${v.label}</span></div>`).join('')}
+        <div style="font-size:8px;letter-spacing:3px;color:rgba(201,162,39,.6);text-transform:uppercase;margin-bottom:3px">Panduan · TA ${taFilter}</div>
+        <div style="font-size:19px;font-weight:800;color:#C9A227">Legenda & Keterangan</div>
       </div>
-      <div>
-        <div style="font-size:8px;letter-spacing:2px;font-weight:700;color:#1B4F72;text-transform:uppercase;border-bottom:2px solid #C9A227;padding-bottom:4px;margin-bottom:10px">Warna Ghurfah</div>
-        ${Object.entries(GC).map(([g,c])=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:.5px solid #f0f0f0"><span style="width:12px;height:12px;border-radius:50%;background:${c};display:inline-block;flex-shrink:0"></span><span style="font-size:10px;color:#333">${g}</span><span style="margin-left:auto;font-size:9px;color:#aaa">${EVENTS.filter(e=>e.ghurfah===g).length} agenda</span></div>`).join('')}
-        <div style="margin-top:14px;background:#FEF9E7;border-radius:8px;padding:12px;border-left:3px solid #C9A227">
-          <div style="font-size:9px;font-weight:700;color:#1B4F72;margin-bottom:4px">Total Agenda TA. ${taFilter}</div>
-          <div style="font-size:26px;font-weight:800;color:#C9A227">${evs.length}</div>
-          <div style="font-size:9px;color:#888">kegiatan dari ${new Set(EVENTS.filter(e=>e.ghurfah).map(e=>e.ghurfah)).size} Ghurfah BHN</div>
+      <div style="margin-left:auto;text-align:right;">
+        <div style="font-size:24px;font-weight:800;color:#C9A227">${evs.length}</div>
+        <div style="font-size:8px;color:rgba(255,255,255,.5)">Total Agenda</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;flex:1;">
+      <!-- COL 1: Kategori -->
+      <div style="padding:18px 20px;border-right:1px solid #f0f0f0;">
+        <div style="font-size:8px;letter-spacing:2px;font-weight:700;color:#1B4F72;text-transform:uppercase;border-bottom:2px solid #C9A227;padding-bottom:4px;margin-bottom:12px">Kategori Kegiatan</div>
+        ${Object.entries(KAT).map(([k,v])=>`
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:.5px solid #f0f0f0;">
+            <span style="width:14px;height:14px;border-radius:4px;background:${v.bg};border:2px solid ${v.color};flex-shrink:0;display:inline-block;box-shadow:0 1px 4px ${v.color}40"></span>
+            <span style="font-size:10px;color:${v.color};font-weight:700">${v.label}</span>
+            <span style="margin-left:auto;font-size:8px;color:#aaa">${evs.filter(e=>e.kategori===k).length}</span>
+          </div>`).join('')}
+      </div>
+
+      <!-- COL 2: Ghurfah -->
+      <div style="padding:18px 20px;border-right:1px solid #f0f0f0;">
+        <div style="font-size:8px;letter-spacing:2px;font-weight:700;color:#1B4F72;text-transform:uppercase;border-bottom:2px solid #C9A227;padding-bottom:4px;margin-bottom:12px">Warna Ghurfah</div>
+        ${Object.entries(GC).map(([g,c])=>{
+          const n=evs.filter(e=>e.ghurfah===g).length;
+          return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:.5px solid #f0f0f0;">
+            <span style="width:14px;height:14px;border-radius:50%;background:${c};display:inline-block;flex-shrink:0;box-shadow:0 1px 6px ${c}60"></span>
+            <span style="font-size:9.5px;color:#333;flex:1">${g}</span>
+            <span style="background:${c}18;color:${c};font-size:8px;font-weight:700;padding:1px 6px;border-radius:4px;border:1px solid ${c}30">${n}</span>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <!-- COL 3: Statistik -->
+      <div style="padding:18px 20px;">
+        <div style="font-size:8px;letter-spacing:2px;font-weight:700;color:#1B4F72;text-transform:uppercase;border-bottom:2px solid #C9A227;padding-bottom:4px;margin-bottom:12px">Statistik TA ${taFilter}</div>
+        ${[
+          {l:'Total Agenda',n:evs.length,c:'#C9A227',icon:'📋'},
+          {l:'Bulan Aktif',n:keys.filter(k=>byM[k]?.length>0).length,c:'#2E86C1',icon:'📅'},
+          {l:'Ghurfah Aktif',n:new Set(evs.filter(e=>e.ghurfah).map(e=>e.ghurfah)).size,c:'#9B59B6',icon:'🏛'},
+          {l:'Ada RAB',n:totalRABEvs.length,c:'#27AE60',icon:'💰'},
+          {l:'Raker/Rapat',n:evs.filter(e=>e.kategori==='raker').length,c:'#3498DB',icon:'🤝'},
+          {l:'Program Ghurfah',n:evs.filter(e=>e.kategori==='ghurfah').length,c:'#F39C12',icon:'⭐'},
+        ].map(s=>`
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:.5px solid #f0f0f0;">
+            <span style="font-size:14px">${s.icon}</span>
+            <span style="font-size:10px;color:#555;flex:1">${s.l}</span>
+            <span style="font-size:14px;font-weight:800;color:${s.c}">${s.n}</span>
+          </div>`).join('')}
+        <div style="margin-top:14px;background:linear-gradient(135deg,#1B4F72,#0f2d47);border-radius:10px;padding:14px;color:#fff;box-shadow:0 4px 16px rgba(27,79,114,.3);">
+          <div style="font-size:8px;letter-spacing:1px;color:rgba(201,162,39,.7);text-transform:uppercase;margin-bottom:4px">Sistem Kaldik BHN</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.8);line-height:1.6">
+            TA ${taFilter}<br>
+            Dicetak: ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}<br>
+            <span style="color:#C9A227;font-weight:700">Baitul Hikmah Nusantara</span>
+          </div>
         </div>
       </div>
     </div>
-    <div style="padding:8px 28px;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:8px;color:#aaa;font-family:sans-serif">
-      <span style="font-weight:800;color:#1B4F72">BHN · Baitul Hikmah Nusantara</span>
-      <span>Kalender Akademik ${taFilter}</span><span>${keys.length+2}</span>
+
+    <div style="padding:8px 28px;background:#f8fafc;border-top:2px solid #C9A22730;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-weight:800;color:#1B4F72;font-size:9px">BHN · Baitul Hikmah Nusantara · Bogor</span>
+      <span style="font-size:8px;color:#aaa">Kalender Akademik ${taFilter}</span>
+      <span style="background:#C9A227;color:#fff;padding:2px 8px;border-radius:4px;font-size:8px;font-weight:700">${keys.length+2}</span>
     </div>
   </div>`;
   document.getElementById('book-pages').innerHTML=html;
