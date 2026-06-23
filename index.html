@@ -2,207 +2,320 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Sistem Kaldik BHN</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kaldik BHN</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
-:root{--navy:#1B4F72;--navy2:#154360;--gold:#C9A227;--gl:#FEF9E7;--nl:#D6E8F5;--w:#fff;}
+:root{
+  --navy:#1B4F72;--navy2:#154360;--gold:#C9A227;--gold2:#b8911f;
+  --gl:#FEF9E7;--nl:#D6E8F5;--bg:#0f1923;--surface:#162436;
+  --surface2:#1e3448;--border:#2a4560;--text:#e8edf2;--muted:#7a9bb5;
+  --radius:12px;--radius-sm:8px;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:sans-serif;background:#eef0f3;min-height:100vh;}
+html{scroll-behavior:smooth;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--navy);display:flex;align-items:center;padding:0 18px;height:50px;box-shadow:0 2px 8px rgba(0,0,0,.3);}
-.nav-logo{color:var(--gold);font-weight:700;font-size:14px;margin-right:20px;white-space:nowrap;}
-.nav-logo small{color:rgba(255,255,255,.5);font-size:10px;display:block;font-weight:400;}
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--surface);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:9999;
+  background:rgba(22,36,54,0.96);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);height:56px;
+  display:flex;align-items:center;padding:0 20px;gap:12px;}
+.nav-brand{display:flex;align-items:center;gap:10px;margin-right:8px;}
+.nav-brand .icon{width:34px;height:34px;background:linear-gradient(135deg,var(--gold),#e8b830);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.nav-brand .name{font-size:13px;font-weight:700;color:var(--gold);line-height:1.1;}
+.nav-brand .sub{font-size:10px;color:var(--muted);font-weight:400;}
 .nav-tabs{display:flex;gap:2px;flex:1;}
-.nav-tab{background:none;border:none;color:rgba(255,255,255,.6);padding:0 16px;height:50px;cursor:pointer;font-size:12px;font-family:sans-serif;border-bottom:3px solid transparent;transition:all .15s;white-space:nowrap;}
-.nav-tab.active{color:#fff;border-bottom-color:var(--gold);font-weight:600;}
-.nav-tab:hover{color:#fff;}
+.nav-tab{background:none;border:none;color:var(--muted);padding:6px 14px;height:40px;cursor:pointer;
+  font-size:12px;font-family:inherit;border-radius:var(--radius-sm);transition:all .2s;white-space:nowrap;
+  display:flex;align-items:center;gap:6px;}
+.nav-tab:hover{color:var(--text);background:rgba(255,255,255,.05);}
+.nav-tab.active{color:#fff;background:rgba(201,162,39,.15);border:1px solid rgba(201,162,39,.3);}
+.nav-tab .emoji{font-size:14px;}
 .nav-actions{display:flex;gap:6px;margin-left:auto;}
-.nb{background:rgba(255,255,255,.12);color:#fff;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:11px;font-family:sans-serif;white-space:nowrap;}
-.nb:hover{background:rgba(255,255,255,.22);}
-.nb.gold{background:var(--gold);}
+.nbtn{border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);
+  padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:11px;
+  font-family:inherit;transition:all .2s;white-space:nowrap;}
+.nbtn:hover{background:rgba(255,255,255,.1);}
+.nbtn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:var(--gold);color:#1a1a1a;font-weight:600;}
+.nbtn.gold:hover{filter:brightness(1.1);}
 
-/* VIEWS */
-.view{display:none;padding:66px 0 20px;}
+/* ── VIEWS ── */
+.view{display:none;padding-top:56px;min-height:100vh;}
 .view.active{display:block;}
-.container{max-width:1080px;margin:0 auto;padding:0 16px;}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px;}
 
-/* ══════════════════════════════
-   VIEW 1: KALDIK INTERAKTIF
-══════════════════════════════ */
-.dash-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
-.dc{background:#fff;border-radius:10px;padding:14px 16px;border-top:3px solid var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.07);}
-.dc-num{font-size:26px;font-weight:700;color:var(--navy);line-height:1;}
-.dc-lbl{font-size:10px;color:#888;margin-top:2px;}
+/* ── STAT CARDS ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;position:relative;overflow:hidden;transition:transform .2s;}
+.stat:hover{transform:translateY(-2px);}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c,var(--gold));}
+.stat-num{font-size:28px;font-weight:700;color:var(--c,var(--gold));line-height:1;}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:4px;}
+.stat-icon{position:absolute;right:14px;top:14px;font-size:22px;opacity:.3;}
 
-.kal-nav{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.kal-title{font-size:16px;font-weight:600;color:var(--navy);min-width:170px;text-align:center;}
-.kb{background:#fff;border:1px solid #ddd;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;}
-.kb:hover{background:#f5f5f5;}
+/* ── FILTERS ── */
+.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.fsel{background:var(--surface);border:1px solid var(--border);color:var(--text);
+  padding:7px 10px;border-radius:var(--radius-sm);font-size:11px;font-family:inherit;cursor:pointer;}
+.fsel option{background:var(--surface2);}
+.ta-badge{background:rgba(201,162,39,.15);border:1px solid rgba(201,162,39,.3);color:var(--gold);
+  padding:6px 12px;border-radius:var(--radius-sm);font-size:11px;font-weight:600;}
 
-.cal-wrap{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:14px;}
+/* ── CALENDAR ── */
+.cal-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.cal-title{font-size:18px;font-weight:700;color:var(--text);flex:1;text-align:center;}
+.cal-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);
+  width:34px;height:34px;border-radius:var(--radius-sm);cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.cal-btn:hover{background:var(--surface2);border-color:var(--gold);}
+.cal-today-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);
+  padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:11px;font-family:inherit;}
+.cal-today-btn:hover{color:var(--gold);border-color:var(--gold);}
+
+.cal-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);}
-.cal-head{background:var(--navy);color:#fff;text-align:center;padding:8px 0;font-size:11px;font-weight:600;}
-.cal-cell{min-height:76px;border-right:.5px solid #eee;border-bottom:.5px solid #eee;padding:4px 5px;cursor:pointer;transition:background .1s;}
-.cal-cell:hover{background:#f0f4f8;}
-.cal-cell.today{background:var(--gl);}
-.cal-cell.selected{background:var(--nl);}
-.cal-cell.empty{background:#fafafa;cursor:default;}
-.cal-num{font-size:11px;font-weight:600;color:var(--navy);}
-.cal-num-today{background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;}
-.cal-dots{display:flex;flex-wrap:wrap;gap:1px;margin-top:2px;}
-.cal-dot{width:5px;height:5px;border-radius:50%;}
-.cal-ev{font-size:9px;border-radius:3px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.cal-head{background:var(--navy2);color:rgba(255,255,255,.7);text-align:center;
+  padding:10px 4px;font-size:11px;font-weight:600;letter-spacing:.5px;}
+.cal-head.wknd{color:rgba(201,162,39,.8);}
+.cal-cell{min-height:88px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:5px;cursor:pointer;transition:background .15s;position:relative;overflow:hidden;}
+.cal-cell:hover{background:rgba(255,255,255,.04);}
+.cal-cell.empty{background:rgba(0,0,0,.1);cursor:default;}
+.cal-cell.today{background:rgba(201,162,39,.08);}
+.cal-cell.selected{background:rgba(27,79,114,.3);box-shadow:inset 0 0 0 2px var(--navy);}
+.cal-cell.has-ev{background:rgba(30,52,72,.6);}
+.cal-num{font-size:11px;font-weight:600;color:var(--muted);display:inline-flex;
+  align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;}
+.cal-num.today-num{background:var(--gold);color:#1a1a1a;font-weight:700;}
+.cal-num.wknd-num{color:rgba(201,162,39,.7);}
+.cal-ev-pill{font-size:9px;border-radius:4px;padding:2px 5px;margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;
+  border-left:2px solid currentColor;display:block;}
+.cal-more{font-size:9px;color:var(--muted);margin-top:2px;padding-left:2px;}
 
-.sel-panel{background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:14px;}
-.sel-panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-.sel-panel-title{font-size:13px;font-weight:600;color:var(--navy);}
+/* Color stripes on date cells */
+.cell-stripe{position:absolute;top:0;left:0;right:0;height:3px;display:flex;gap:0;}
+.stripe-seg{flex:1;height:3px;}
 
-.agenda-upcoming{background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.07);}
-.sec-title{font-size:11px;font-weight:700;color:var(--navy);letter-spacing:1.5px;text-transform:uppercase;border-bottom:2px solid var(--gold);padding-bottom:4px;margin-bottom:10px;}
-.ev-row{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:.5px solid #f0f0f0;cursor:pointer;}
-.ev-row:hover{background:#fffbf0;}
-.ev-date{min-width:34px;text-align:center;}
-.ev-date-n{font-size:15px;font-weight:700;color:var(--navy);line-height:1;}
-.ev-date-d{font-size:9px;color:#aaa;}
-.ev-bar{width:3px;border-radius:2px;align-self:stretch;min-height:14px;flex-shrink:0;}
-.ev-body{flex:1;}
-.ev-title{font-size:12px;font-weight:600;}
-.ev-meta{font-size:10px;color:#888;margin-top:1px;}
-.ev-ghurfah{font-size:10px;font-weight:600;}
+/* ── SEL PANEL ── */
+.sel-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;margin-bottom:16px;animation:slideIn .2s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
+.sel-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.sel-panel-title{font-size:14px;font-weight:600;color:var(--gold);}
+.ev-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start;cursor:pointer;border-radius:var(--radius-sm);transition:background .15s;}
+.ev-item:hover{background:rgba(255,255,255,.03);}
+.ev-item:last-child{border-bottom:none;}
+.ev-date-box{min-width:36px;text-align:center;flex-shrink:0;}
+.ev-dn{font-size:16px;font-weight:700;color:var(--gold);line-height:1;}
+.ev-dd{font-size:9px;color:var(--muted);}
+.ev-stripe{width:3px;border-radius:2px;align-self:stretch;min-height:16px;flex-shrink:0;}
+.ev-body{flex:1;min-width:0;}
+.ev-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
+.ev-meta{font-size:10px;color:var(--muted);margin-top:3px;}
+.ev-gf{font-size:10px;font-weight:600;margin-top:2px;}
+.kat-badge{font-size:9px;padding:2px 7px;border-radius:4px;display:inline-block;margin-top:3px;font-weight:500;}
 
-.filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
-.fsel{border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:11px;font-family:sans-serif;}
+/* ── UPCOMING ── */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.sec-title{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
 
-/* ══════════════════════════════
-   VIEW 2: BOOK LAYOUT
-══════════════════════════════ */
-#book-view{background:#ccc;}
-.book-toolbar{position:fixed;top:50px;left:0;right:0;z-index:999;background:#fff;border-bottom:1px solid #e0e0e0;padding:8px 16px;display:flex;gap:8px;align-items:center;}
-.book-toolbar select{border:1px solid #ddd;border-radius:5px;padding:5px 8px;font-size:11px;}
-#book-pages{padding:70px 0 20px;}
+/* ── BOOK LAYOUT ── */
+#book-view{background:#1a1a1a;}
+.book-toolbar{position:fixed;top:56px;left:0;right:0;z-index:998;
+  background:rgba(22,36,54,.96);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);padding:8px 16px;display:flex;gap:8px;align-items:center;}
+.book-toolbar select{background:var(--surface);border:1px solid var(--border);color:var(--text);
+  padding:5px 8px;border-radius:var(--radius-sm);font-size:11px;}
+#book-pages{padding:76px 0 24px;background:#1a1a1a;}
 
-/* BOOK PAGES */
-.page{width:297mm;min-height:210mm;background:#fff;margin:10px auto;position:relative;overflow:hidden;page-break-after:always;box-shadow:0 2px 12px rgba(0,0,0,.15);}
-.cover{background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:210mm;position:relative;overflow:hidden;}
-.cover::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,162,39,.04) 40px,rgba(201,162,39,.04) 80px);}
-.cov-arc{position:absolute;bottom:-60px;left:-60px;width:300px;height:300px;border-radius:50%;border:40px solid rgba(201,162,39,.15);}
-.cov-arc2{position:absolute;top:-40px;right:-40px;width:220px;height:220px;border-radius:50%;border:30px solid rgba(255,255,255,.06);}
+/* PRINT PAGES */
+.page{width:297mm;min-height:210mm;background:#fff;margin:10px auto;
+  position:relative;overflow:hidden;page-break-after:always;
+  box-shadow:0 4px 24px rgba(0,0,0,.4);border-radius:4px;}
+.cover{background:var(--navy);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;min-height:210mm;position:relative;overflow:hidden;}
+.cover::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% 50%,rgba(201,162,39,.1) 0%,transparent 60%),
+  radial-gradient(ellipse at 80% 20%,rgba(27,79,114,.4) 0%,transparent 50%);}
+.cov-arc{position:absolute;bottom:-80px;left:-80px;width:360px;height:360px;
+  border-radius:50%;border:50px solid rgba(201,162,39,.12);}
+.cov-arc2{position:absolute;top:-50px;right:-50px;width:280px;height:280px;
+  border-radius:50%;border:40px solid rgba(255,255,255,.04);}
 .cov-inner{position:relative;z-index:2;text-align:center;padding:2rem;}
-.cov-lbl{font-size:10px;letter-spacing:4px;color:rgba(201,162,39,.8);text-transform:uppercase;margin-bottom:10px;}
-.cov-title{font-size:36px;color:var(--gold);font-weight:bold;line-height:1.2;margin-bottom:6px;}
-.cov-sub{font-size:15px;color:rgba(255,255,255,.7);margin-bottom:18px;}
-.cov-div{width:80px;height:3px;background:var(--gold);margin:0 auto 18px;border-radius:2px;}
-.cov-ta{font-size:20px;color:#fff;font-weight:bold;}
-.cov-ta-s{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px;}
-.cov-gf{margin-top:24px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
-.cov-gf span{font-size:9px;color:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.18);padding:3px 9px;border-radius:20px;}
-.cov-bot{position:absolute;bottom:20px;left:0;right:0;text-align:center;font-size:10px;color:rgba(255,255,255,.35);letter-spacing:2px;}
+.cov-lbl{font-size:9px;letter-spacing:5px;color:rgba(201,162,39,.7);text-transform:uppercase;margin-bottom:14px;font-family:sans-serif;}
+.cov-title{font-size:40px;color:var(--gold);font-weight:800;line-height:1.1;margin-bottom:6px;font-family:sans-serif;}
+.cov-sub{font-size:14px;color:rgba(255,255,255,.6);margin-bottom:22px;font-family:sans-serif;}
+.cov-div{width:100px;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 22px;border-radius:2px;}
+.cov-ta{font-size:22px;color:#fff;font-weight:700;letter-spacing:1px;font-family:sans-serif;}
+.cov-ta-s{font-size:12px;color:rgba(255,255,255,.45);margin-top:5px;font-family:sans-serif;}
+.cov-gf{margin-top:28px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.cov-gf span{font-size:8px;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.15);padding:3px 10px;border-radius:20px;font-family:sans-serif;}
+.cov-bot{position:absolute;bottom:20px;left:0;right:0;text-align:center;font-size:9px;color:rgba(255,255,255,.3);letter-spacing:3px;font-family:sans-serif;}
 
-.month-page{display:grid;grid-template-columns:175px 1fr;min-height:210mm;}
-.sidebar{background:var(--navy);padding:22px 14px;display:flex;flex-direction:column;position:relative;overflow:hidden;}
-.sidebar::after{content:'';position:absolute;bottom:0;right:0;width:70px;height:70px;border-radius:50% 0 0 0;background:rgba(201,162,39,.12);}
-.sb-month{font-size:24px;font-weight:bold;color:var(--gold);line-height:1.1;margin-bottom:3px;}
-.sb-year{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:2px;margin-bottom:12px;}
-.sb-div{width:36px;height:2px;background:var(--gold);margin-bottom:12px;}
-.sb-lbl{font-size:8px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
-.gf-tag{font-size:8px;color:rgba(255,255,255,.8);padding:3px 0;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:5px;}
+.month-page{display:grid;grid-template-columns:170px 1fr;min-height:210mm;}
+.sidebar{background:linear-gradient(180deg,#1B4F72 0%,#0f2d47 100%);padding:20px 14px;
+  display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.sidebar::after{content:'';position:absolute;bottom:0;right:0;width:90px;height:90px;
+  border-radius:50% 0 0 0;background:rgba(201,162,39,.08);}
+.sb-month{font-size:22px;font-weight:800;color:var(--gold);line-height:1.1;margin-bottom:2px;font-family:sans-serif;}
+.sb-year{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:3px;margin-bottom:12px;font-family:sans-serif;}
+.sb-div{width:32px;height:2px;background:var(--gold);margin-bottom:12px;border-radius:1px;}
+.sb-lbl{font-size:7px;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;font-family:sans-serif;}
+.gf-tag{font-size:7.5px;color:rgba(255,255,255,.8);padding:3px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:5px;font-family:sans-serif;}
 .gf-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 .sb-cnt{margin-top:auto;padding-top:8px;}
-.cnt-box{background:rgba(201,162,39,.15);border-radius:6px;padding:8px 10px;margin-top:6px;}
-.cnt-num{font-size:22px;font-weight:bold;color:var(--gold);line-height:1;}
-.cnt-lbl{font-size:8px;color:rgba(255,255,255,.5);letter-spacing:1px;}
-.pg-content{display:flex;flex-direction:column;padding:16px 16px 10px;}
-.b-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:10px;}
-.b-ch{background:var(--navy);color:#fff;text-align:center;font-size:9px;font-weight:600;padding:5px 0;}
-.b-cc{min-height:24px;border:.5px solid #eee;padding:2px 3px;background:#fff;}
-.b-cc.t{background:var(--gl);}
-.b-cc.h{background:#F8FBFF;}
-.b-cc.e{background:#fafafa;}
-.b-cn{font-size:9px;font-weight:600;color:var(--navy);}
-.b-cnt{background:var(--gold);color:#fff;border-radius:50%;width:15px;height:15px;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:bold;}
+.cnt-box{background:rgba(201,162,39,.12);border:1px solid rgba(201,162,39,.2);border-radius:8px;padding:8px 10px;margin-top:6px;}
+.cnt-num{font-size:20px;font-weight:800;color:var(--gold);font-family:sans-serif;line-height:1;}
+.cnt-lbl{font-size:7px;color:rgba(255,255,255,.45);letter-spacing:1px;font-family:sans-serif;}
+.pg-content{display:flex;flex-direction:column;padding:14px 14px 8px;background:#fff;}
+.b-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:10px;background:#e0e0e0;border:1px solid #e0e0e0;border-radius:4px;overflow:hidden;}
+.b-ch{background:#1B4F72;color:rgba(255,255,255,.8);text-align:center;font-size:8px;font-weight:600;padding:5px 0;font-family:sans-serif;}
+.b-ch.wk{color:rgba(201,162,39,.9);}
+.b-cc{min-height:22px;border:none;padding:2px 3px;background:#fff;position:relative;overflow:hidden;}
+.b-cc.t{background:#FEF9E7;}
+.b-cc.h{background:#F5F9FF;}
+.b-cc.e{background:#FAFAFA;}
+.b-cc.wk{background:#FFFBF0;}
+.b-stripe{position:absolute;top:0;left:0;right:0;height:2px;display:flex;}
+.b-stripe-seg{flex:1;height:2px;}
+.b-cn{font-size:8.5px;font-weight:600;color:#1B4F72;font-family:sans-serif;}
+.b-cnt{background:var(--gold);color:#fff;border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;font-family:sans-serif;}
 .b-dots{display:flex;flex-wrap:wrap;gap:1px;margin-top:1px;}
 .b-dot{width:4px;height:4px;border-radius:50%;}
-.b-agenda-title{font-size:9px;font-weight:700;color:var(--navy);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;border-bottom:2px solid var(--gold);padding-bottom:3px;}
-.b-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;}
-.b-item{display:flex;gap:5px;padding:3px 0;border-bottom:.5px solid #f0f0f0;align-items:flex-start;}
-.b-dbox{min-width:24px;text-align:center;flex-shrink:0;}
-.b-dn{font-size:12px;font-weight:700;color:var(--navy);line-height:1;}
-.b-dd{font-size:7px;color:#aaa;}
-.b-bar{width:2.5px;border-radius:2px;align-self:stretch;min-height:12px;flex-shrink:0;}
-.b-bd{flex:1;}
-.b-bj{font-size:9px;font-weight:600;color:#1a1a1a;line-height:1.3;}
-.b-bg{font-size:7.5px;color:var(--gold);font-weight:600;}
-.b-badge{font-size:7px;padding:1px 5px;border-radius:3px;display:inline-block;margin-top:1px;}
-.pg-footer{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-top:1px solid #eee;margin-top:5px;font-size:8px;color:#bbb;}
-.pg-logo{font-size:9px;font-weight:bold;color:var(--navy);}
+.b-agenda-title{font-size:8px;font-weight:700;color:#1B4F72;letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:5px;border-bottom:2px solid var(--gold);padding-bottom:3px;font-family:sans-serif;}
+.b-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 10px;flex:1;}
+.b-item{display:flex;gap:4px;padding:2.5px 0;border-bottom:.5px solid #f0f0f0;align-items:flex-start;}
+.b-dbox{min-width:22px;text-align:center;flex-shrink:0;}
+.b-dn{font-size:11px;font-weight:700;color:#1B4F72;line-height:1;font-family:sans-serif;}
+.b-dd{font-size:7px;color:#aaa;font-family:sans-serif;}
+.b-bar{width:2px;border-radius:1px;align-self:stretch;min-height:12px;flex-shrink:0;}
+.b-bd{flex:1;min-width:0;}
+.b-bj{font-size:8.5px;font-weight:600;color:#1a1a1a;line-height:1.3;font-family:sans-serif;}
+.b-bg{font-size:7px;color:var(--gold);font-weight:600;font-family:sans-serif;}
+.b-pj{font-size:7px;color:#888;font-family:sans-serif;}
+.b-badge{font-size:6.5px;padding:1px 4px;border-radius:3px;display:inline-block;margin-top:1px;font-family:sans-serif;}
+.b-rab{font-size:7px;color:#27AE60;font-family:sans-serif;font-weight:500;}
+.pg-footer{display:flex;align-items:center;justify-content:space-between;padding:4px 0;
+  border-top:1px solid #e8e8e8;margin-top:auto;font-size:7.5px;color:#aaa;font-family:sans-serif;}
+.pg-logo{font-size:8px;font-weight:700;color:#1B4F72;}
 
-/* ══════════════════════════════
-   VIEW 3: UPLOAD
-══════════════════════════════ */
-.up-grid{display:grid;grid-template-columns:340px 1fr;gap:14px;}
-.card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:14px;}
-.card-head{padding:12px 16px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;}
-.card-head h3{font-size:13px;color:var(--navy);font-weight:700;}
+/* ── UPLOAD VIEW ── */
+.up-layout{display:grid;grid-template-columns:320px 1fr;gap:14px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.card-head h3{font-size:13px;font-weight:600;color:var(--text);}
 .card-body{padding:16px;}
-.drop-zone{border:2px dashed var(--gold);border-radius:10px;padding:24px 14px;text-align:center;cursor:pointer;background:var(--gl);transition:all .2s;}
-.drop-zone:hover,.drop-zone.drag{background:#FEF0C0;}
-.dz-icon{font-size:32px;margin-bottom:6px;}
-.dz-t{font-size:12px;font-weight:600;color:var(--navy);}
-.dz-s{font-size:10px;color:#888;margin-top:3px;}
-.mode-tabs{display:flex;border:1px solid #e0e0e0;border-radius:7px;overflow:hidden;margin-bottom:12px;}
-.mode-tab{flex:1;padding:7px;text-align:center;cursor:pointer;font-size:11px;background:#fff;border:none;}
-.mode-tab.active{background:var(--navy);color:#fff;font-weight:600;}
-.gf-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;}
-.g-chip{border:1.5px solid #e0e0e0;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:10px;display:flex;align-items:center;gap:5px;transition:all .15s;}
-.g-chip.active{border-color:var(--gold);background:var(--gl);}
+.drop-zone{border:2px dashed rgba(201,162,39,.4);border-radius:var(--radius);
+  padding:28px 16px;text-align:center;cursor:pointer;
+  background:rgba(201,162,39,.03);transition:all .2s;}
+.drop-zone:hover,.drop-zone.drag{background:rgba(201,162,39,.08);border-color:var(--gold);}
+.dz-icon{font-size:36px;margin-bottom:8px;}
+.dz-t{font-size:13px;font-weight:600;color:var(--text);}
+.dz-s{font-size:11px;color:var(--muted);margin-top:4px;}
+.mode-row{display:flex;gap:6px;margin-bottom:12px;}
+.mode-btn{flex:1;padding:8px;text-align:center;cursor:pointer;font-size:11px;font-family:inherit;
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--muted);transition:all .2s;}
+.mode-btn.active{background:rgba(27,79,114,.4);border-color:var(--navy);color:var(--text);font-weight:600;}
+.gf-chips{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;}
+.g-chip{border:1px solid var(--border);border-radius:6px;padding:6px 8px;cursor:pointer;
+  font-size:10px;display:flex;align-items:center;gap:5px;transition:all .15s;color:var(--muted);background:var(--surface2);}
+.g-chip:hover{border-color:var(--gold);color:var(--text);}
+.g-chip.active{border-color:var(--gold);background:rgba(201,162,39,.12);color:var(--gold);}
+.g-chip.all{grid-column:1/-1;justify-content:center;font-weight:600;}
 .g-chip .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.g-chip.all{grid-column:1/-1;background:var(--navy);color:#fff;border-color:var(--navy);justify-content:center;font-weight:600;}
-.g-chip.all.active{background:var(--gold);border-color:var(--gold);}
-.log{background:#f8f9fa;border-radius:8px;padding:10px;font-size:10px;font-family:monospace;max-height:140px;overflow-y:auto;margin-top:10px;}
-.log-item.ok{color:#27AE60;}.log-item.err{color:#E74C3C;}.log-item.info{color:#2E86C1;}.log-item.warn{color:#E67E22;}
-.tpl-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #e0e0e0;border-radius:7px;cursor:pointer;background:#fff;font-size:11px;width:100%;margin-bottom:6px;text-align:left;}
-.tpl-btn:hover{border-color:var(--gold);background:var(--gl);}
-.fmt-box{background:#f8f9fa;border-radius:7px;padding:10px;font-size:10px;border:1px solid #e0e0e0;margin-top:10px;}
-.fmt-table{width:100%;border-collapse:collapse;font-size:10px;margin-top:6px;}
-.fmt-table th{background:#eee;padding:4px 7px;text-align:left;}
-.fmt-table td{padding:3px 7px;border-bottom:.5px solid #eee;font-family:monospace;font-size:9px;}
-.apply-bar{background:var(--navy);border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.apply-bar p{color:rgba(255,255,255,.8);font-size:11px;}
-.apply-bar strong{color:var(--gold);}
-.apply-btn{background:var(--gold);color:#fff;border:none;padding:9px 20px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;}
-.apply-btn:disabled{opacity:.4;}
-.res-table{width:100%;border-collapse:collapse;font-size:11px;}
-.res-table th{background:var(--navy);color:#fff;padding:6px 10px;text-align:left;font-size:10px;}
-.res-table td{padding:5px 10px;border-bottom:.5px solid #eee;vertical-align:top;}
-.res-table tr:hover td{background:#f8fbff;}
-.kat-badge{font-size:9px;padding:2px 6px;border-radius:3px;white-space:nowrap;}
-.g-badge{font-size:9px;padding:2px 6px;border-radius:3px;font-weight:600;}
-.empty{text-align:center;padding:32px;color:#ccc;font-size:12px;}
+.log-box{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:10px;font-size:10px;font-family:monospace;max-height:130px;overflow-y:auto;margin-top:10px;display:none;}
+.log-ok{color:#2ECC71;}.log-err{color:#E74C3C;}.log-info{color:#3498DB;}.log-warn{color:#F39C12;}
+.tpl-btn{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);
+  border-radius:var(--radius-sm);cursor:pointer;background:var(--surface2);font-size:11px;
+  width:100%;margin-bottom:6px;text-align:left;color:var(--text);transition:all .2s;font-family:inherit;}
+.tpl-btn:hover{border-color:var(--gold);background:rgba(201,162,39,.08);}
+.fmt-info{background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:12px;font-size:10px;margin-top:10px;}
+.fmt-info h4{color:var(--gold);margin-bottom:8px;font-size:11px;}
+.fmt-info table{width:100%;border-collapse:collapse;}
+.fmt-info th{text-align:left;padding:4px 6px;background:rgba(255,255,255,.05);font-size:9px;color:var(--muted);}
+.fmt-info td{padding:3px 6px;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px;font-family:monospace;color:var(--text);}
+.apply-bar{background:linear-gradient(135deg,var(--navy),var(--navy2));border:1px solid rgba(201,162,39,.3);
+  border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;
+  justify-content:space-between;margin-bottom:12px;display:none;}
+.apply-bar p{color:rgba(255,255,255,.8);font-size:12px;}
+.apply-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a;border:none;
+  padding:10px 22px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;}
+.res-wrap{overflow-x:auto;}
+.res-table{width:100%;border-collapse:collapse;font-size:11px;min-width:600px;}
+.res-table th{background:var(--navy2);color:rgba(255,255,255,.8);padding:7px 10px;text-align:left;font-size:10px;}
+.res-table td{padding:6px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.res-table tr:hover td{background:rgba(255,255,255,.02);}
+.g-badge{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:600;}
 
-/* MODAL */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99999;align-items:center;justify-content:center;}
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .overlay.open{display:flex;}
-.modal{background:#fff;border-radius:12px;width:480px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);}
-.modal-head{background:var(--navy);padding:14px 18px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;}
-.modal-head h3{color:var(--gold);font-size:14px;}
-.modal-head button{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;}
-.modal-body{padding:18px;}
-.fr{margin-bottom:10px;}
-.fr label{display:block;font-size:10px;color:#555;margin-bottom:3px;font-weight:700;text-transform:uppercase;}
-.fr input,.fr select,.fr textarea{width:100%;border:1px solid #ddd;border-radius:6px;padding:7px 10px;font-size:12px;font-family:sans-serif;}
-.fr textarea{height:56px;resize:vertical;}
-.mact{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
-.bp{background:var(--navy);color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:12px;}
-.bg{background:var(--gold);color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:12px;}
-.bgh{background:none;border:1px solid #ddd;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;color:#555;}
-.bd{background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  width:480px;max-width:96vw;max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.modal-head{background:var(--navy2);padding:16px 20px;border-radius:var(--radius) var(--radius) 0 0;
+  display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.modal-head h3{color:var(--gold);font-size:15px;}
+.modal-head button{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;}
+.modal-head button:hover{color:#fff;}
+.modal-body{padding:20px;}
+.fr{margin-bottom:12px;}
+.fr label{display:block;font-size:10px;color:var(--muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.fr input,.fr select,.fr textarea{width:100%;background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);padding:9px 12px;border-radius:var(--radius-sm);font-size:12px;font-family:inherit;transition:border-color .2s;}
+.fr input:focus,.fr select:focus,.fr textarea:focus{outline:none;border-color:var(--gold);}
+.fr select option{background:var(--surface2);}
+.fr textarea{height:64px;resize:vertical;}
+.fr input[type=number]{-moz-appearance:textfield;}
+.mact{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+.bp{background:var(--navy);color:#fff;border:1px solid var(--border);padding:9px 18px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-family:inherit;}
+.bg{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a;border:none;padding:9px 18px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;}
+.bgh{background:none;border:1px solid var(--border);padding:9px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;color:var(--muted);font-family:inherit;}
+.bd{background:#c0392b;color:#fff;border:none;padding:9px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-family:inherit;}
 
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .nav-brand .sub{display:none;}
+  .nav-tab span.emoji+*{display:none;}
+  .nav-tab{padding:6px 10px;}
+  .stats{grid-template-columns:1fr 1fr;}
+  .stat-num{font-size:22px;}
+  .cal-cell{min-height:52px;}
+  .cal-ev-pill{display:none;}
+  .up-layout{grid-template-columns:1fr;}
+  .book-toolbar{flex-wrap:wrap;gap:4px;}
+  .wrap{padding:12px 10px;}
+}
+@media(max-width:480px){
+  nav{padding:0 10px;gap:6px;}
+  .nav-brand .name{font-size:12px;}
+  .stats{grid-template-columns:1fr 1fr;gap:8px;}
+  .cal-cell{min-height:44px;padding:3px;}
+  .nbtn{padding:5px 8px;font-size:10px;}
+}
+
+/* ── PRINT ── */
 @media print{
   nav,.book-toolbar,.view#kaldik-view,.view#upload-view,.overlay{display:none!important;}
-  .view#book-view{display:block!important;padding:0!important;}
-  #book-pages{padding:0!important;}
-  .page{margin:0;box-shadow:none;page-break-after:always;}
+  #book-view{display:block!important;padding:0!important;background:#fff!important;}
+  #book-pages{padding:0!important;background:#fff!important;}
+  .page{margin:0;box-shadow:none;page-break-after:always;border-radius:0;}
   @page{size:A4 landscape;margin:0;}
 }
 </style>
@@ -211,152 +324,159 @@ nav{position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--navy);disp
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">📚 Baitul Hikmah Nusantara<small>Sistem Kalender Akademik</small></div>
+  <div class="nav-brand">
+    <div class="icon">📚</div>
+    <div><div class="name">Baitul Hikmah Nusantara</div><div class="sub">Sistem Kalender Akademik</div></div>
+  </div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchView('kaldik')">🗓 Kaldik Interaktif</button>
-    <button class="nav-tab" onclick="switchView('book')">📖 Book Layout</button>
-    <button class="nav-tab" onclick="switchView('upload')">⬆ Upload Proker</button>
+    <button class="nav-tab active" onclick="switchView('kaldik')"><span class="emoji">🗓</span><span>Kaldik</span></button>
+    <button class="nav-tab" onclick="switchView('book')"><span class="emoji">📖</span><span>Book Layout</span></button>
+    <button class="nav-tab" onclick="switchView('upload')"><span class="emoji">⬆</span><span>Upload Proker</span></button>
   </div>
   <div class="nav-actions">
-    <button class="nb" onclick="openModal('ev-modal','')">+ Tambah Agenda</button>
-    <button class="nb" onclick="exportICS()">⬇ ICS</button>
-    <button class="nb gold" onclick="window.print()">🖨 Cetak PDF</button>
+    <button class="nbtn" onclick="openEvModal()">+ Agenda</button>
+    <button class="nbtn" onclick="doExportICS()">ICS</button>
+    <button class="nbtn gold" onclick="window.print()">🖨 Cetak</button>
   </div>
 </nav>
 
-<!-- ══ VIEW 1: KALDIK INTERAKTIF ══ -->
+<!-- ═══ VIEW 1: KALDIK ═══ -->
 <div class="view active" id="kaldik-view">
-<div class="container" style="padding-top:66px">
-  <div class="dash-cards" id="dash-cards"></div>
+<div class="wrap">
+  <div class="stats" id="stat-cards"></div>
   <div class="filters">
-    <select class="fsel" id="fk" onchange="renderKal()"><option value="">Semua Kategori</option></select>
-    <select class="fsel" id="fg" onchange="renderKal()"><option value="">Semua Ghurfah</option></select>
-    <select class="fsel" id="fta" onchange="changeTA()"></select>
+    <select class="fsel" id="f-kat" onchange="renderKal()"><option value="">Semua Kategori</option></select>
+    <select class="fsel" id="f-gf" onchange="renderKal()"><option value="">Semua Ghurfah</option></select>
+    <select class="fsel" id="f-ta" onchange="onChangeTA()"></select>
+    <span class="ta-badge" id="ta-badge">TA 2025–2026</span>
   </div>
-  <div class="kal-nav">
-    <button class="kb" onclick="prevMonth()">‹</button>
-    <div class="kal-title" id="kal-title"></div>
-    <button class="kb" onclick="nextMonth()">›</button>
-    <button class="kb" onclick="goToday()">Hari ini</button>
+  <div class="cal-header">
+    <button class="cal-btn" onclick="prevM()">‹</button>
+    <div class="cal-title" id="cal-title"></div>
+    <button class="cal-btn" onclick="nextM()">›</button>
+    <button class="cal-today-btn" onclick="goToday()">Hari ini</button>
   </div>
   <div class="cal-wrap"><div class="cal-grid" id="cal-grid"></div></div>
-  <div class="sel-panel" id="sel-panel" style="display:none">
-    <div class="sel-panel-head">
-      <span class="sel-panel-title" id="sel-title"></span>
-      <button class="nb" style="font-size:11px;padding:4px 10px" onclick="openModal('ev-modal','')">+ Tambah</button>
-    </div>
-    <div id="sel-events"></div>
-  </div>
-  <div class="agenda-upcoming">
+  <div id="sel-panel" style="display:none"></div>
+  <div class="section">
     <div class="sec-title">Agenda Mendatang</div>
     <div id="upcoming"></div>
   </div>
 </div>
 </div>
 
-<!-- ══ VIEW 2: BOOK LAYOUT ══ -->
+<!-- ═══ VIEW 2: BOOK ═══ -->
 <div class="view" id="book-view">
   <div class="book-toolbar">
-    <span style="font-size:12px;font-weight:700;color:var(--navy)">📖 Book Layout</span>
-    <select id="book-filter-g" onchange="buildBook()" style="border:1px solid #ddd;border-radius:5px;padding:5px 8px;font-size:11px;">
+    <span style="font-size:12px;font-weight:600;color:var(--gold)">📖 Book Layout</span>
+    <select id="book-gf" onchange="buildBook()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-size:11px;">
       <option value="">Semua Ghurfah</option>
     </select>
-    <button class="nb" style="background:var(--navy)" onclick="buildBook()">↺ Refresh</button>
-    <button class="nb gold" onclick="window.print()">🖨 Cetak / Simpan PDF</button>
-    <span style="font-size:10px;color:#888;margin-left:4px">Cetak → A4 Landscape, Margin: None</span>
+    <select id="book-ta" onchange="buildBook()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-size:11px;"></select>
+    <button class="nbtn" onclick="buildBook()">↺ Refresh</button>
+    <button class="nbtn gold" onclick="window.print()">🖨 Cetak PDF</button>
+    <span style="font-size:10px;color:var(--muted)">A4 Landscape · Margin None</span>
   </div>
   <div id="book-pages"></div>
 </div>
 
-<!-- ══ VIEW 3: UPLOAD ══ -->
+<!-- ═══ VIEW 3: UPLOAD ═══ -->
 <div class="view" id="upload-view">
-<div class="container">
-  <div class="up-grid">
-    <!-- LEFT -->
+<div class="wrap">
+  <div class="up-layout">
     <div>
       <div class="card">
         <div class="card-head"><h3>⚙ Mode Upload</h3></div>
         <div class="card-body">
-          <div class="mode-tabs">
-            <button class="mode-tab active" id="mt-g" onclick="setUpMode('ghurfah')">Per Ghurfah</button>
-            <button class="mode-tab" id="mt-gb" onclick="setUpMode('gabungan')">Gabungan Admin</button>
+          <div class="mode-row">
+            <button class="mode-btn active" id="mt-g" onclick="setUpMode('ghurfah')">Per Ghurfah</button>
+            <button class="mode-btn" id="mt-gb" onclick="setUpMode('gabungan')">Gabungan Admin</button>
           </div>
           <div id="gf-picker">
-            <p style="font-size:10px;color:#888;margin-bottom:7px">Pilih ghurfah pengirim:</p>
-            <div class="gf-grid" id="gf-chips"></div>
+            <p style="font-size:10px;color:var(--muted);margin-bottom:6px">Pilih ghurfah pengirim:</p>
+            <div class="gf-chips" id="gf-chips"></div>
           </div>
-          <div id="gab-info" style="display:none;background:var(--nl);border-radius:7px;padding:10px;font-size:11px;color:var(--navy)">
-            📋 <b>Mode Gabungan:</b> Upload 1 file Word berisi proker semua ghurfah. Nama ghurfah dideteksi otomatis dari heading tabel.
+          <div id="gab-info" style="display:none;background:rgba(27,79,114,.2);border:1px solid var(--navy);border-radius:var(--radius-sm);padding:10px;font-size:11px;color:var(--nl)">
+            📋 Upload 1 file Word berisi proker semua ghurfah. Nama ghurfah dideteksi otomatis dari teks judul di atas setiap tabel.
           </div>
         </div>
       </div>
+
       <div class="card">
-        <div class="card-head"><h3>📂 Upload File Word</h3></div>
+        <div class="card-head"><h3>📂 Upload File Word (.docx)</h3></div>
         <div class="card-body">
           <div class="drop-zone" id="drop-zone"
             onclick="document.getElementById('file-in').click()"
             ondragover="event.preventDefault();this.classList.add('drag')"
             ondragleave="this.classList.remove('drag')"
-            ondrop="handleDrop(event)">
+            ondrop="onDrop(event)">
             <div class="dz-icon">📄</div>
-            <div class="dz-t">Klik atau seret file Word (.docx)</div>
-            <div class="dz-s">Sistem membaca tabel secara otomatis</div>
+            <div class="dz-t">Klik atau seret file Word</div>
+            <div class="dz-s">Format kolom BHN: No · Nama Program · Target · Turunan Kegiatan · PJ · Batas Waktu · RAB</div>
           </div>
           <input type="file" id="file-in" accept=".docx" style="display:none" onchange="handleFile(this.files[0])">
-          <div id="up-log" class="log" style="display:none"></div>
+          <div id="up-log" class="log-box"></div>
         </div>
       </div>
+
       <div class="card">
-        <div class="card-head"><h3>📥 Template Word</h3></div>
+        <div class="card-head"><h3>📥 Template Proker BHN</h3></div>
         <div class="card-body">
-          <button class="tpl-btn" onclick="dlTemplate('ghurfah')"><span style="font-size:18px">📋</span><div><b style="font-size:11px;color:var(--navy)">Template Per Ghurfah</b><div style="font-size:9px;color:#888">Untuk musyrif tiap ghurfah</div></div></button>
-          <button class="tpl-btn" onclick="dlTemplate('gabungan')"><span style="font-size:18px">📚</span><div><b style="font-size:11px;color:var(--navy)">Template Gabungan Admin</b><div style="font-size:9px;color:#888">Semua ghurfah dalam 1 file</div></div></button>
-          <div class="fmt-box">
-            <b style="color:var(--navy)">Format Kolom yang Dibaca:</b>
-            <table class="fmt-table">
-              <tr><th>Kolom</th><th>Contoh</th><th>Wajib</th></tr>
-              <tr><td>Tanggal</td><td>15/07/2026 atau 15 Juli 2026</td><td>✅</td></tr>
-              <tr><td>Kegiatan</td><td>Rapat Koordinasi</td><td>✅</td></tr>
-              <tr><td>Kategori</td><td>Raker / Ujian / Ghurfah</td><td>—</td></tr>
-              <tr><td>PJ</td><td>Ust. Yaufiq</td><td>—</td></tr>
-              <tr><td>Catatan</td><td>Anggaran Rp 500.000</td><td>—</td></tr>
+          <button class="tpl-btn" onclick="dlTpl('ghurfah')"><span style="font-size:18px">📋</span><div><b>Template Per Ghurfah</b><div style="font-size:9px;color:var(--muted);margin-top:2px">Kolom: No · Nama Program · Target · Turunan Kegiatan · PJ · Batas Waktu · RAB</div></div></button>
+          <button class="tpl-btn" onclick="dlTpl('gabungan')"><span style="font-size:18px">📚</span><div><b>Template Gabungan Admin</b><div style="font-size:9px;color:var(--muted);margin-top:2px">Semua ghurfah dalam 1 file Word</div></div></button>
+          <div class="fmt-info">
+            <h4>📌 Panduan Pengisian Kolom</h4>
+            <table>
+              <tr><th>Kolom</th><th>Contoh Isi</th><th>Wajib</th></tr>
+              <tr><td>No</td><td>1, 2, 3...</td><td>—</td></tr>
+              <tr><td>Nama Program</td><td>Madrasah Mutarjimin</td><td>✅*</td></tr>
+              <tr><td>Target</td><td>Target 1: Pematangan...</td><td>—</td></tr>
+              <tr><td>Turunan Kegiatan</td><td>Rapat koordinasi ghurfah</td><td>✅</td></tr>
+              <tr><td>Penanggung Jawab</td><td>Ust. Yaufiq</td><td>—</td></tr>
+              <tr><td>Batas Waktu</td><td>15/07/2026 atau Juli 2026</td><td>✅</td></tr>
+              <tr><td>RAB</td><td>Rp 500.000</td><td>—</td></tr>
             </table>
+            <div style="margin-top:8px;font-size:9px;color:var(--muted)">* Nama Program dibaca sebagai judul kategori kegiatan. Turunan Kegiatan menjadi nama agenda di kaldik.</div>
           </div>
         </div>
       </div>
     </div>
-    <!-- RIGHT -->
+
     <div>
-      <div id="apply-bar" style="display:none" class="apply-bar">
+      <div id="apply-bar" class="apply-bar">
         <div>
-          <p>Ditemukan <strong id="found-n">0</strong> agenda dari file yang diupload</p>
-          <p style="font-size:10px;margin-top:2px">Periksa hasil di bawah sebelum diterapkan</p>
+          <p>Ditemukan <strong id="found-n" style="color:var(--gold)">0</strong> agenda dari dokumen</p>
+          <p style="font-size:10px;margin-top:2px;color:var(--muted)">Periksa & edit di bawah sebelum diterapkan ke Kaldik</p>
         </div>
-        <button class="apply-btn" onclick="applyToKaldik()">✅ Terapkan ke Kaldik</button>
+        <button class="apply-btn" onclick="applyAll()">✅ Terapkan ke Kaldik</button>
       </div>
       <div class="card">
         <div class="card-head">
           <h3>📋 Hasil Baca Dokumen</h3>
-          <div style="margin-left:auto;display:flex;gap:5px">
-            <button class="nb" style="background:var(--navy);font-size:10px;padding:3px 9px" onclick="openModal('ev-modal','parsed')">+ Manual</button>
-            <button class="nb" style="font-size:10px;padding:3px 9px;background:#e74c3c" onclick="clearParsed()">🗑 Clear</button>
+          <div style="margin-left:auto;display:flex;gap:6px">
+            <button class="nbtn" style="font-size:10px;padding:4px 10px" onclick="openEvModal('','parsed')">+ Manual</button>
+            <button class="nbtn" style="font-size:10px;padding:4px 10px;border-color:#c0392b;color:#e74c3c" onclick="clearParsed()">🗑</button>
           </div>
         </div>
-        <div id="parsed-area"><div class="empty">📄 Upload file Word untuk melihat hasil bacaan</div></div>
+        <div class="res-wrap">
+          <div id="parsed-area"><div style="text-align:center;padding:40px;color:var(--muted);font-size:13px">📄 Upload file Word untuk melihat hasil bacaan</div></div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 </div>
 
-<!-- MODAL: ADD/EDIT EVENT -->
+<!-- MODAL -->
 <div class="overlay" id="ev-modal">
   <div class="modal">
-    <div class="modal-head"><h3 id="ev-modal-title">Tambah Agenda</h3><button onclick="closeModal('ev-modal')">✕</button></div>
+    <div class="modal-head"><h3 id="ev-modal-t">Tambah Agenda</h3><button onclick="closeModal('ev-modal')">✕</button></div>
     <div class="modal-body">
       <input type="hidden" id="ev-id"><input type="hidden" id="ev-src">
       <div class="fr"><label>Tanggal</label><input type="date" id="ev-tgl"></div>
-      <div class="fr"><label>Judul Kegiatan</label><input type="text" id="ev-judul" placeholder="Nama kegiatan..."></div>
+      <div class="fr"><label>Nama Program / Judul</label><input type="text" id="ev-judul" placeholder="Nama program atau kegiatan..."></div>
+      <div class="fr"><label>Turunan Kegiatan (opsional)</label><input type="text" id="ev-turunan" placeholder="Detail kegiatan..."></div>
+      <div class="fr"><label>Target</label><input type="text" id="ev-target" placeholder="Target kegiatan..."></div>
       <div class="fr"><label>Kategori</label>
         <select id="ev-kat">
           <option value="kegiatan">Kegiatan BHN</option><option value="raker">Raker / Rapat</option>
@@ -375,7 +495,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--navy);disp
         </select>
       </div>
       <div class="fr"><label>PJ / Penanggung Jawab</label><input type="text" id="ev-pj" placeholder="Nama PJ..."></div>
-      <div class="fr"><label>Catatan</label><textarea id="ev-cat" placeholder="Keterangan, anggaran, dll..."></textarea></div>
+      <div class="fr"><label>RAB / Anggaran</label><input type="text" id="ev-rab" placeholder="Rp 0"></div>
+      <div class="fr"><label>Catatan</label><textarea id="ev-cat" placeholder="Keterangan tambahan..."></textarea></div>
       <div class="mact">
         <button class="bgh" onclick="closeModal('ev-modal')">Batal</button>
         <button class="bd" id="ev-del" onclick="deleteEv()" style="display:none">Hapus</button>
@@ -386,238 +507,257 @@ nav{position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--navy);disp
 </div>
 
 <script>
-// ══════════════════════════════════════════
-// CORE DATA & CONSTANTS
-// ══════════════════════════════════════════
-const NAVY='#1B4F72',GOLD='#C9A227';
+// ════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════
 const KAT={
-  libur:{label:'Libur Nasional',color:'#E74C3C',bg:'#FDECEA'},
-  libur_sekolah:{label:'Libur Sekolah',color:'#E67E22',bg:'#FEF3E2'},
-  ujian:{label:'Ujian/Evaluasi',color:'#8E44AD',bg:'#F5EEF8'},
-  raker:{label:'Raker/Rapat',color:'#1B4F72',bg:'#D6E8F5'},
-  kegiatan:{label:'Kegiatan BHN',color:'#27AE60',bg:'#EAFAF1'},
-  ghurfah:{label:'Program Ghurfah',color:'#C9A227',bg:'#FEF9E7'},
-  lainnya:{label:'Lainnya',color:'#7F8C8D',bg:'#F2F3F4'},
+  libur:{label:'Libur Nasional',color:'#E74C3C',bg:'rgba(231,76,60,.15)'},
+  libur_sekolah:{label:'Libur Sekolah',color:'#E67E22',bg:'rgba(230,126,34,.15)'},
+  ujian:{label:'Ujian/Evaluasi',color:'#9B59B6',bg:'rgba(155,89,182,.15)'},
+  raker:{label:'Raker/Rapat',color:'#3498DB',bg:'rgba(52,152,219,.15)'},
+  kegiatan:{label:'Kegiatan BHN',color:'#2ECC71',bg:'rgba(46,204,113,.15)'},
+  ghurfah:{label:'Program Ghurfah',color:'#F39C12',bg:'rgba(243,156,18,.15)'},
+  lainnya:{label:'Lainnya',color:'#95A5A6',bg:'rgba(149,165,166,.15)'},
 };
 const GC={
-  "Ghurfah Khizanah":'#2E86C1',"Ghurfah Tarjamah":'#1ABC9C',
-  "Ghurfah Ta'lim":'#8E44AD',"Ghurfah Bahts wa Ta'lif":'#E67E22',
-  "Ghurfah Munadzharah":'#E74C3C',"Ghurfah Filahah":'#27AE60',
-  "Ghurfah Idaroh":'#C9A227',
+  "Ghurfah Khizanah":'#2E86C1',
+  "Ghurfah Tarjamah":'#1ABC9C',
+  "Ghurfah Ta'lim":'#9B59B6',
+  "Ghurfah Bahts wa Ta'lif":'#E67E22',
+  "Ghurfah Munadzharah":'#E74C3C',
+  "Ghurfah Filahah":'#27AE60',
+  "Ghurfah Idaroh":'#F39C12',
 };
-const BULAN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-const HARI=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const BLN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const HRI=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 function pad(n){return String(n).padStart(2,'0');}
-const todayDate=new Date();
-const todayStr=`${todayDate.getFullYear()}-${pad(todayDate.getMonth()+1)}-${pad(todayDate.getDate())}`;
+const td=new Date();
+const todayStr=`${td.getFullYear()}-${pad(td.getMonth()+1)}-${pad(td.getDate())}`;
 
-// ── Events DB ──
-let EVENTS=[
-  {id:1,tanggal:"2026-01-01",judul:"Tahun Baru Masehi",kategori:"libur",ghurfah:"",pj:"",catatan:""},
-  {id:2,tanggal:"2026-01-16",judul:"Isra Mi'raj 1447 H",kategori:"libur",ghurfah:"",pj:"",catatan:""},
-  {id:3,tanggal:"2026-02-18",judul:"Awal Ramadhan 1447 H",kategori:"libur",ghurfah:"",pj:"",catatan:""},
-  {id:4,tanggal:"2026-06-25",judul:"Awal Muharram 1448 H",kategori:"libur",ghurfah:"",pj:"",catatan:""},
-  {id:5,tanggal:"2026-08-17",judul:"HUT RI ke-81",kategori:"libur",ghurfah:"",pj:"",catatan:""},
-  {id:10,tanggal:"2025-10-06",judul:"Rapat Koordinasi Perpustakaan MAF",kategori:"raker",ghurfah:"Ghurfah Khizanah",pj:"Fahmi",catatan:""},
-  {id:11,tanggal:"2025-10-13",judul:"Mudarasah Kamis – Khizanah BHN",kategori:"ghurfah",ghurfah:"Ghurfah Khizanah",pj:"",catatan:"Rutin setiap Kamis"},
-  {id:12,tanggal:"2025-10-31",judul:"Pendataan Buku Perpustakaan MAF",kategori:"ghurfah",ghurfah:"Ghurfah Khizanah",pj:"Fahmi",catatan:""},
-  {id:13,tanggal:"2025-11-30",judul:"Desain Ulang Ruang Perpus MAF",kategori:"ghurfah",ghurfah:"Ghurfah Khizanah",pj:"Rejoyo",catatan:"Anggaran: Rp 88.500.000"},
-  {id:14,tanggal:"2026-01-12",judul:"Launching Program Arbainat – Guru MAF",kategori:"kegiatan",ghurfah:"Ghurfah Khizanah",pj:"Rejoyo",catatan:""},
-  {id:20,tanggal:"2025-10-20",judul:"Interview & Placement Test Mutarjimin",kategori:"ujian",ghurfah:"Ghurfah Tarjamah",pj:"Ja'far",catatan:""},
-  {id:21,tanggal:"2025-10-31",judul:"Pertemuan Perdana Mustawa 1",kategori:"ghurfah",ghurfah:"Ghurfah Tarjamah",pj:"Zaki",catatan:""},
-  {id:22,tanggal:"2025-12-19",judul:"Ujian Mustawa 1 – Mutarjimin",kategori:"ujian",ghurfah:"Ghurfah Tarjamah",pj:"Zaki",catatan:""},
-  {id:23,tanggal:"2026-09-25",judul:"Haflah Madrasah Mutarjimin",kategori:"kegiatan",ghurfah:"Ghurfah Tarjamah",pj:"",catatan:"Anggaran: Rp 5.000.000"},
-  {id:30,tanggal:"2025-10-29",judul:"Launching Program Makalah & Kalender Literasi",kategori:"kegiatan",ghurfah:"Ghurfah Bahts wa Ta'lif",pj:"Ust Iwan",catatan:""},
-  {id:31,tanggal:"2026-01-05",judul:"Terbit Perdana Makalah BHN",kategori:"kegiatan",ghurfah:"Ghurfah Bahts wa Ta'lif",pj:"Ust Iwan",catatan:"Senin, Rabu, Jumat"},
-  {id:32,tanggal:"2026-04-01",judul:"Terbit Buku: Pendidikan 13 Abad",kategori:"kegiatan",ghurfah:"Ghurfah Bahts wa Ta'lif",pj:"Ust Iwan",catatan:""},
-  {id:40,tanggal:"2025-10-28",judul:"Haflah Daurah Kitab Rusydul Qarib",kategori:"kegiatan",ghurfah:"Ghurfah Ta'lim",pj:"Ardhan",catatan:"Anggaran: Rp 13.500.000"},
-  {id:41,tanggal:"2026-01-17",judul:"Majelis Riwayah – Qatlaa Al Qur'an",kategori:"kegiatan",ghurfah:"Ghurfah Ta'lim",pj:"Fakhri",catatan:"Anggaran: Rp 2.000.000"},
-  {id:42,tanggal:"2026-04-27",judul:"Daurah Offline Kaderisasi PJS Al Fatih",kategori:"kegiatan",ghurfah:"Ghurfah Ta'lim",pj:"U. Agus",catatan:"27-30 April. Anggaran: Rp 25.000.000"},
-  {id:50,tanggal:"2025-10-29",judul:"Majelis Arbi'a – Sesi 1",kategori:"ghurfah",ghurfah:"Ghurfah Munadzharah",pj:"U. Agus",catatan:"Kitab Hifdz Al Umur"},
-  {id:51,tanggal:"2025-11-05",judul:"Majelis Arbi'a – Sesi 2",kategori:"ghurfah",ghurfah:"Ghurfah Munadzharah",pj:"U. Agus",catatan:""},
-  {id:52,tanggal:"2025-12-08",judul:"Launching Kaderisasi PJS Internal Al Fatih",kategori:"kegiatan",ghurfah:"Ghurfah Munadzharah",pj:"U. Agus",catatan:""},
-  {id:60,tanggal:"2025-10-13",judul:"Kajian Kitab Filahah Bab Az Zubuul",kategori:"ghurfah",ghurfah:"Ghurfah Filahah",pj:"Adam Pratama",catatan:"Rutin pekanan"},
-  {id:61,tanggal:"2026-01-12",judul:"Pembuatan Pupuk Organik Cair",kategori:"ghurfah",ghurfah:"Ghurfah Filahah",pj:"Sri Mulyadi",catatan:"Anggaran: Rp 200.000"},
-  {id:62,tanggal:"2026-09-30",judul:"Selesai Modul Kurikulum Pupuk Organik",kategori:"ghurfah",ghurfah:"Ghurfah Filahah",pj:"Jauhar",catatan:""},
-  {id:70,tanggal:"2025-10-01",judul:"Konsolidasi Program Kerja Ghurfah BHN",kategori:"raker",ghurfah:"Ghurfah Idaroh",pj:"Waalid, Muslim, Yaufiq",catatan:""},
-  {id:71,tanggal:"2026-01-01",judul:"Musyawarah Tengah Semester BHN",kategori:"raker",ghurfah:"Ghurfah Idaroh",pj:"Ust. Yaufiq",catatan:""},
-  {id:72,tanggal:"2026-05-01",judul:"RAKER BHN Tahunan",kategori:"raker",ghurfah:"Ghurfah Idaroh",pj:"Waalid, Muslim, Yaufiq",catatan:""},
-  {id:73,tanggal:"2026-06-01",judul:"Laporan Tahunan Program Kerja BHN",kategori:"ghurfah",ghurfah:"Ghurfah Idaroh",pj:"Ust. Yaufiq",catatan:""},
-];
-let nextId=200;
-let parsedEvents=[];
-let selDate=null;
-let upMode='ghurfah';
-let selGhurfah='Ghurfah Idaroh';
-let calYear=todayDate.getFullYear();
-let calMonth=todayDate.getMonth();
-
-// TA list
-const TA_LIST=['2025–2026','2026–2027','2027–2028'];
+// ════════════════════════════════════════════════
+// TA LIST — 20 TAHUN
+// ════════════════════════════════════════════════
+const TA_LIST=[];
+for(let y=2024;y<=2044;y++) TA_LIST.push(`${y}–${y+1}`);
 let currentTA='2025–2026';
 
-// ══════════════════════════════════════════
-// VIEW SWITCHING
-// ══════════════════════════════════════════
+// ════════════════════════════════════════════════
+// EVENTS DB
+// ════════════════════════════════════════════════
+let EVENTS=[
+  {id:1,tanggal:"2026-01-01",judul:"Tahun Baru Masehi",turunan:"",target:"",kategori:"libur",ghurfah:"",pj:"",rab:"",catatan:""},
+  {id:2,tanggal:"2026-01-16",judul:"Isra Mi'raj 1447 H",turunan:"",target:"",kategori:"libur",ghurfah:"",pj:"",rab:"",catatan:""},
+  {id:3,tanggal:"2026-02-18",judul:"Awal Ramadhan 1447 H",turunan:"",target:"",kategori:"libur",ghurfah:"",pj:"",rab:"",catatan:""},
+  {id:4,tanggal:"2026-06-25",judul:"Awal Muharram 1448 H",turunan:"",target:"",kategori:"libur",ghurfah:"",pj:"",rab:"",catatan:""},
+  {id:5,tanggal:"2026-08-17",judul:"HUT RI ke-81",turunan:"",target:"",kategori:"libur",ghurfah:"",pj:"",rab:"",catatan:""},
+  {id:10,tanggal:"2025-10-06",judul:"Rapat Koordinasi Perpustakaan MAF",turunan:"",target:"",kategori:"raker",ghurfah:"Ghurfah Khizanah",pj:"Fahmi",rab:"",catatan:""},
+  {id:11,tanggal:"2025-10-13",judul:"Mudarasah Kamis – Khizanah BHN",turunan:"",target:"",kategori:"ghurfah",ghurfah:"Ghurfah Khizanah",pj:"",rab:"Rp 500.000",catatan:"Rutin setiap Kamis"},
+  {id:12,tanggal:"2025-11-30",judul:"Desain Ulang Ruang Perpus MAF",turunan:"",target:"",kategori:"ghurfah",ghurfah:"Ghurfah Khizanah",pj:"Rejoyo",rab:"Rp 88.500.000",catatan:""},
+  {id:13,tanggal:"2026-01-12",judul:"Launching Program Arbainat – Guru MAF",turunan:"",target:"",kategori:"kegiatan",ghurfah:"Ghurfah Khizanah",pj:"Rejoyo",rab:"Rp 800.000",catatan:""},
+  {id:20,tanggal:"2025-10-20",judul:"Interview & Placement Test Mutarjimin",turunan:"",target:"",kategori:"ujian",ghurfah:"Ghurfah Tarjamah",pj:"Ja'far",rab:"",catatan:""},
+  {id:21,tanggal:"2025-10-31",judul:"Pertemuan Perdana Mustawa 1",turunan:"",target:"",kategori:"ghurfah",ghurfah:"Ghurfah Tarjamah",pj:"Zaki",rab:"Rp 500.000",catatan:""},
+  {id:22,tanggal:"2025-12-19",judul:"Ujian Mustawa 1 – Mutarjimin",turunan:"",target:"",kategori:"ujian",ghurfah:"Ghurfah Tarjamah",pj:"Zaki",rab:"",catatan:""},
+  {id:23,tanggal:"2026-09-25",judul:"Haflah Madrasah Mutarjimin",turunan:"",target:"",kategori:"kegiatan",ghurfah:"Ghurfah Tarjamah",pj:"",rab:"Rp 5.000.000",catatan:""},
+  {id:30,tanggal:"2025-10-29",judul:"Launching Program Makalah & Kalender Literasi",turunan:"",target:"",kategori:"kegiatan",ghurfah:"Ghurfah Bahts wa Ta'lif",pj:"Ust Iwan",rab:"",catatan:""},
+  {id:31,tanggal:"2026-01-05",judul:"Terbit Perdana Makalah BHN",turunan:"",target:"",kategori:"kegiatan",ghurfah:"Ghurfah Bahts wa Ta'lif",pj:"Ust Iwan",rab:"",catatan:"Senin, Rabu, Jumat"},
+  {id:32,tanggal:"2026-04-01",judul:"Terbit Buku: Pendidikan 13 Abad",turunan:"",target:"",kategori:"kegiatan",ghurfah:"Ghurfah Bahts wa Ta'lif",pj:"Ust Iwan",rab:"",catatan:""},
+  {id:40,tanggal:"2025-10-28",judul:"Haflah Daurah Kitab Rusydul Qarib",turunan:"",target:"",kategori:"kegiatan",ghurfah:"Ghurfah Ta'lim",pj:"Ardhan",rab:"Rp 13.500.000",catatan:""},
+  {id:41,tanggal:"2026-01-17",judul:"Majelis Riwayah – Qatlaa Al Qur'an",turunan:"",target:"",kategori:"kegiatan",ghurfah:"Ghurfah Ta'lim",pj:"Fakhri",rab:"Rp 2.000.000",catatan:""},
+  {id:42,tanggal:"2026-04-27",judul:"Daurah Offline Kaderisasi PJS Al Fatih",turunan:"",target:"",kategori:"kegiatan",ghurfah:"Ghurfah Ta'lim",pj:"U. Agus",rab:"Rp 25.000.000",catatan:"27-30 April"},
+  {id:50,tanggal:"2025-10-29",judul:"Majelis Arbi'a – Sesi 1",turunan:"",target:"",kategori:"ghurfah",ghurfah:"Ghurfah Munadzharah",pj:"U. Agus",rab:"Rp 4.000.000",catatan:"Kitab Hifdz Al Umur"},
+  {id:51,tanggal:"2025-11-05",judul:"Majelis Arbi'a – Sesi 2",turunan:"",target:"",kategori:"ghurfah",ghurfah:"Ghurfah Munadzharah",pj:"U. Agus",rab:"Rp 4.000.000",catatan:""},
+  {id:52,tanggal:"2025-12-08",judul:"Launching Kaderisasi PJS Internal Al Fatih",turunan:"",target:"",kategori:"kegiatan",ghurfah:"Ghurfah Munadzharah",pj:"U. Agus",rab:"Rp 1.000.000",catatan:""},
+  {id:60,tanggal:"2025-10-13",judul:"Kajian Kitab Filahah Bab Az Zubuul",turunan:"",target:"",kategori:"ghurfah",ghurfah:"Ghurfah Filahah",pj:"Adam Pratama",rab:"",catatan:"Rutin pekanan"},
+  {id:61,tanggal:"2026-01-12",judul:"Pembuatan Pupuk Organik Cair",turunan:"",target:"",kategori:"ghurfah",ghurfah:"Ghurfah Filahah",pj:"Sri Mulyadi",rab:"Rp 200.000",catatan:""},
+  {id:62,tanggal:"2026-09-30",judul:"Selesai Modul Kurikulum Pupuk Organik",turunan:"",target:"",kategori:"ghurfah",ghurfah:"Ghurfah Filahah",pj:"Jauhar",rab:"",catatan:""},
+  {id:70,tanggal:"2025-10-01",judul:"Konsolidasi Program Kerja Ghurfah BHN",turunan:"",target:"",kategori:"raker",ghurfah:"Ghurfah Idaroh",pj:"Waalid, Muslim, Yaufiq",rab:"",catatan:""},
+  {id:71,tanggal:"2026-01-01",judul:"Musyawarah Tengah Semester BHN",turunan:"",target:"",kategori:"raker",ghurfah:"Ghurfah Idaroh",pj:"Ust. Yaufiq",rab:"",catatan:""},
+  {id:72,tanggal:"2026-05-01",judul:"RAKER BHN Tahunan",turunan:"",target:"",kategori:"raker",ghurfah:"Ghurfah Idaroh",pj:"Waalid, Muslim, Yaufiq",rab:"",catatan:""},
+  {id:73,tanggal:"2026-06-01",judul:"Laporan Tahunan Program Kerja BHN",turunan:"",target:"",kategori:"ghurfah",ghurfah:"Ghurfah Idaroh",pj:"Ust. Yaufiq",rab:"",catatan:""},
+];
+let nextId=300;
+let parsedEvents=[];
+let selDate=null;
+let calY=td.getFullYear(),calM=td.getMonth();
+let upMode='ghurfah',selGf='Ghurfah Idaroh';
+let evModalSrc='kaldik';
+
+// ════════════════════════════════════════════════
+// VIEW
+// ════════════════════════════════════════════════
 function switchView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
   document.getElementById(v+'-view').classList.add('active');
   const tabs=document.querySelectorAll('.nav-tab');
-  const map={kaldik:0,book:1,upload:2};
-  tabs[map[v]].classList.add('active');
+  ({kaldik:tabs[0],book:tabs[1],upload:tabs[2]})[v].classList.add('active');
   if(v==='book') buildBook();
   if(v==='kaldik') renderAll();
 }
 
-// ══════════════════════════════════════════
-// KALDIK INTERAKTIF
-// ══════════════════════════════════════════
-function filteredEvents(){
-  const fk=document.getElementById('fk')?.value||'';
-  const fg=document.getElementById('fg')?.value||'';
+// ════════════════════════════════════════════════
+// INIT SELECTS & FILTERS
+// ════════════════════════════════════════════════
+function initUI(){
+  // TA selects
+  const fta=document.getElementById('f-ta');
+  const bta=document.getElementById('book-ta');
+  TA_LIST.forEach(ta=>{
+    [fta,bta].forEach(s=>{const o=document.createElement('option');o.value=ta;o.textContent='TA '+ta;if(ta===currentTA)o.selected=true;s.appendChild(o);});
+  });
+  // Kat filter
+  const fk=document.getElementById('f-kat');
+  Object.entries(KAT).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v.label;fk.appendChild(o);});
+  // GF filter
+  const fg=document.getElementById('f-gf');
+  const bg=document.getElementById('book-gf');
+  Object.keys(GC).forEach(g=>{
+    [fg,bg].forEach(s=>{const o=document.createElement('option');o.value=g;o.textContent=g;s.appendChild(o);});
+  });
+  // Upload GF chips
+  const gc=document.getElementById('gf-chips');
+  gc.innerHTML=`<div class="g-chip all active" id="chip-all" onclick="selGfChip('all')">📚 Semua Ghurfah</div>`;
+  Object.entries(GC).forEach(([g,c])=>{
+    gc.innerHTML+=`<div class="g-chip" id="chip-${g.replace(/\W/g,'_')}" onclick="selGfChip('${g}')"><span class="dot" style="background:${c}"></span>${g.replace('Ghurfah ','')}</div>`;
+  });
+  selGfChip('Ghurfah Idaroh');
+}
+
+function onChangeTA(){currentTA=document.getElementById('f-ta').value;document.getElementById('ta-badge').textContent='TA '+currentTA;renderAll();}
+
+// ════════════════════════════════════════════════
+// KALDIK RENDER
+// ════════════════════════════════════════════════
+function getFiltered(){
+  const fk=document.getElementById('f-kat')?.value||'';
+  const fg=document.getElementById('f-gf')?.value||'';
   return EVENTS.filter(e=>{
-    if(fk && e.kategori!==fk) return false;
-    if(fg && e.ghurfah!==fg) return false;
+    if(fk&&e.kategori!==fk)return false;
+    if(fg&&e.ghurfah!==fg)return false;
     return true;
   });
 }
 
-function renderAll(){renderDash();renderKal();renderUpcoming();}
+function renderAll(){renderStats();renderKal();renderUpcoming();}
 
-function renderDash(){
-  const today=todayStr;
-  const upcoming=EVENTS.filter(e=>e.tanggal>=today).length;
+function renderStats(){
+  const up=EVENTS.filter(e=>e.tanggal>=todayStr).length;
   const gSet=new Set(EVENTS.filter(e=>e.ghurfah).map(e=>e.ghurfah));
-  const thisM=EVENTS.filter(e=>e.tanggal.startsWith(`${calYear}-${pad(calMonth+1)}`)).length;
-  document.getElementById('dash-cards').innerHTML=[
-    {n:EVENTS.length,l:'Total Agenda',c:NAVY},
-    {n:thisM,l:'Bulan Ini',c:'#8E44AD'},
-    {n:upcoming,l:'Akan Datang',c:'#27AE60'},
-    {n:gSet.size,l:'Ghurfah Aktif',c:GOLD},
-  ].map(d=>`<div class="dc" style="border-top-color:${d.c}">
-    <div class="dc-num" style="color:${d.c}">${d.n}</div>
-    <div class="dc-lbl">${d.l}</div>
+  const thisM=EVENTS.filter(e=>e.tanggal.startsWith(`${calY}-${pad(calM+1)}`)).length;
+  const totalRAB=EVENTS.filter(e=>e.rab).reduce((s,e)=>{const n=parseInt((e.rab||'').replace(/\D/g,''));return s+(isNaN(n)?0:n);},0);
+  document.getElementById('stat-cards').innerHTML=[
+    {n:EVENTS.length,l:'Total Agenda',c:'var(--gold)',icon:'📋'},
+    {n:thisM,l:'Bulan Ini',c:'#9B59B6',icon:'📅'},
+    {n:up,l:'Akan Datang',c:'#2ECC71',icon:'⏳'},
+    {n:gSet.size,l:'Ghurfah Aktif',c:'#3498DB',icon:'🏛'},
+  ].map(d=>`<div class="stat" style="--c:${d.c}">
+    <div class="stat-icon">${d.icon}</div>
+    <div class="stat-num">${d.n}</div>
+    <div class="stat-lbl">${d.l}</div>
   </div>`).join('');
-
-  // Fill filter selects
-  const fk=document.getElementById('fk');
-  const fg=document.getElementById('fg');
-  const fta=document.getElementById('fta');
-  if(fk.options.length<=1){
-    Object.entries(KAT).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v.label;fk.appendChild(o);});
-  }
-  if(fg.options.length<=1){
-    Object.keys(GC).forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=g;fg.appendChild(o);});
-  }
-  if(fta.options.length===0){
-    TA_LIST.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent='TA '+t;if(t===currentTA)o.selected=true;fta.appendChild(o);});
-  }
 }
 
-function changeTA(){currentTA=document.getElementById('fta').value;}
-
 function renderKal(){
-  document.getElementById('kal-title').textContent=`${BULAN[calMonth]} ${calYear}`;
-  const evs=filteredEvents();
+  document.getElementById('cal-title').textContent=`${BLN[calM]} ${calY}`;
+  const evs=getFiltered();
   const evMap={};
   evs.forEach(e=>{(evMap[e.tanggal]=evMap[e.tanggal]||[]).push(e);});
-  const days=new Date(calYear,calMonth+1,0).getDate();
-  const fd=new Date(calYear,calMonth,1).getDay();
-  let html=HARI.map(h=>`<div class="cal-head">${h}</div>`).join('');
-  for(let i=0;i<fd;i++) html+=`<div class="cal-cell empty"></div>`;
+  const days=new Date(calY,calM+1,0).getDate();
+  const fd=new Date(calY,calM,1).getDay();
+  let h=HRI.map((d,i)=>`<div class="cal-head${i===0||i===6?' wknd':''}">${d}</div>`).join('');
+  for(let i=0;i<fd;i++) h+=`<div class="cal-cell empty"></div>`;
   for(let d=1;d<=days;d++){
-    const ds=`${calYear}-${pad(calMonth+1)}-${pad(d)}`;
-    const devs=evMap[ds]||[];
+    const ds=`${calY}-${pad(calM+1)}-${pad(d)}`;
+    const de=evMap[ds]||[];
     const isT=ds===todayStr,isSel=ds===selDate;
-    const cls=isT?'today':isSel?'selected':devs.length?'has-ev':'';
-    const numH=isT?`<span class="cal-num-today">${d}</span>`:`<span class="cal-num">${d}</span>`;
-    const evHtml=devs.slice(0,2).map(e=>{
+    const dow=new Date(calY,calM,d).getDay();
+    const isWk=dow===0||dow===6;
+    const cls=[isT?'today':'',isSel?'selected':'',de.length?'has-ev':'',isWk?'wknd-cell':''].filter(Boolean).join(' ');
+    // Color stripes
+    const gfColors=[...new Set(de.filter(e=>e.ghurfah).map(e=>GC[e.ghurfah]).filter(Boolean))];
+    const stripes=gfColors.length?`<div class="cell-stripe">${gfColors.map(c=>`<span class="stripe-seg" style="background:${c}"></span>`).join('')}</div>`:'';
+    const numH=isT?`<span class="cal-num today-num">${d}</span>`:`<span class="cal-num${isWk?' wknd-num':''}">${d}</span>`;
+    const pills=de.slice(0,2).map(e=>{
       const k=KAT[e.kategori]||KAT.lainnya;
       const c=e.ghurfah?(GC[e.ghurfah]||k.color):k.color;
-      return `<div class="cal-ev" style="background:${c}20;color:${c}" onclick="event.stopPropagation();openModal('ev-modal','kaldik',${e.id})">${e.judul}</div>`;
+      return `<span class="cal-ev-pill" style="background:${c}18;color:${c}" onclick="event.stopPropagation();openEvModal('kaldik','',${e.id})">${e.judul}</span>`;
     }).join('');
-    const more=devs.length>2?`<div style="font-size:8px;color:#aaa">+${devs.length-2} lagi</div>`:'';
-    html+=`<div class="cal-cell ${cls}" onclick="selectDate('${ds}')">
-      ${numH}
-      <div class="cal-dots">${devs.slice(0,4).map(e=>{const k=KAT[e.kategori]||KAT.lainnya;const c=e.ghurfah?(GC[e.ghurfah]||k.color):k.color;return `<span class="cal-dot" style="background:${c}"></span>`;}).join('')}</div>
-      ${evHtml}${more}
-    </div>`;
+    const more=de.length>2?`<div class="cal-more">+${de.length-2} lagi</div>`:'';
+    h+=`<div class="cal-cell ${cls}" onclick="selectDate('${ds}')">${stripes}${numH}${pills}${more}</div>`;
   }
-  document.getElementById('cal-grid').innerHTML=html;
-
-  // sel panel
-  if(selDate){
-    const selEvs=EVENTS.filter(e=>e.tanggal===selDate);
-    const panel=document.getElementById('sel-panel');
-    panel.style.display='block';
-    document.getElementById('sel-title').textContent=new Date(selDate).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    document.getElementById('sel-events').innerHTML=selEvs.length
-      ? selEvs.map(e=>evRowHTML(e,true)).join('')
-      : `<div style="color:#ccc;font-size:12px;padding:8px 0">Tidak ada agenda.</div>`;
-  } else {
-    document.getElementById('sel-panel').style.display='none';
-  }
+  document.getElementById('cal-grid').innerHTML=h;
+  renderSelPanel();
 }
 
 function selectDate(ds){selDate=selDate===ds?null:ds;renderKal();}
-function prevMonth(){calMonth===0?(calMonth=11,calYear--):calMonth--;renderKal();}
-function nextMonth(){calMonth===11?(calMonth=0,calYear++):calMonth++;renderKal();}
-function goToday(){calYear=todayDate.getFullYear();calMonth=todayDate.getMonth();selDate=null;renderKal();}
+function prevM(){calM===0?(calM=11,calY--):calM--;renderKal();}
+function nextM(){calM===11?(calM=0,calY++):calM++;renderKal();}
+function goToday(){calY=td.getFullYear();calM=td.getMonth();selDate=null;renderKal();}
 
-function renderUpcoming(){
-  const up=EVENTS.filter(e=>e.tanggal>=todayStr).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).slice(0,7);
-  document.getElementById('upcoming').innerHTML=up.length
-    ? up.map(e=>evRowHTML(e,true)).join('')
-    : `<div style="color:#ccc;font-size:12px">Tidak ada agenda mendatang.</div>`;
+function renderSelPanel(){
+  const p=document.getElementById('sel-panel');
+  if(!selDate){p.style.display='none';return;}
+  const evs=EVENTS.filter(e=>e.tanggal===selDate);
+  p.style.display='block';
+  const date=new Date(selDate);
+  p.innerHTML=`<div class="sel-panel-head">
+    <span class="sel-panel-title">${date.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span>
+    <button class="nbtn" style="font-size:11px;padding:5px 12px" onclick="openEvModal('kaldik')">+ Tambah</button>
+  </div>
+  ${evs.length?evs.map(e=>evHTML(e)).join(''):'<div style="color:var(--muted);font-size:12px;padding:4px 0">Tidak ada agenda pada tanggal ini.</div>'}`;
 }
 
-function evRowHTML(e, withEdit){
+function evHTML(e){
   const k=KAT[e.kategori]||KAT.lainnya;
   const gc=e.ghurfah?(GC[e.ghurfah]||k.color):k.color;
-  const d=new Date(e.tanggal);
-  return `<div class="ev-row" ${withEdit?`onclick="openModal('ev-modal','kaldik',${e.id})" title="Klik untuk edit"`:''}>
-    <div class="ev-date"><div class="ev-date-n">${d.getDate()}</div><div class="ev-date-d">${HARI[d.getDay()]}</div></div>
-    <div class="ev-bar" style="background:${gc}"></div>
+  const date=new Date(e.tanggal);
+  return `<div class="ev-item" onclick="openEvModal('kaldik','',${e.id})">
+    <div class="ev-date-box"><div class="ev-dn">${date.getDate()}</div><div class="ev-dd">${HRI[date.getDay()]}</div></div>
+    <div class="ev-stripe" style="background:${gc}"></div>
     <div class="ev-body">
       <div class="ev-title">${e.judul}</div>
-      <div class="ev-meta">${e.tanggal}${e.pj?' · PJ: '+e.pj:''}</div>
-      ${e.ghurfah?`<div class="ev-ghurfah" style="color:${gc}">${e.ghurfah}</div>`:''}
+      ${e.turunan?`<div class="ev-meta">${e.turunan}</div>`:''}
+      <div class="ev-meta">${e.tanggal}${e.pj?' · PJ: '+e.pj:''}${e.rab?' · '+e.rab:''}</div>
+      ${e.ghurfah?`<div class="ev-gf" style="color:${gc}">${e.ghurfah}</div>`:''}
     </div>
-    <span class="kat-badge" style="background:${k.bg};color:${k.color};font-size:9px;padding:2px 7px;border-radius:3px;white-space:nowrap">${k.label}</span>
+    <span class="kat-badge" style="background:${k.bg};color:${k.color}">${k.label}</span>
   </div>`;
 }
 
-// ══════════════════════════════════════════
-// MODAL EVENT
-// ══════════════════════════════════════════
-let evSrc='kaldik';
-function openModal(modalId, src, id){
-  evSrc=src||'kaldik';
-  document.getElementById('ev-modal-title').textContent=id?'Edit Agenda':'Tambah Agenda';
+function renderUpcoming(){
+  const up=EVENTS.filter(e=>e.tanggal>=todayStr).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).slice(0,8);
+  document.getElementById('upcoming').innerHTML=up.length?up.map(evHTML).join(''):`<div style="color:var(--muted);font-size:12px">Tidak ada agenda mendatang.</div>`;
+}
+
+// ════════════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════════════
+function openEvModal(src='kaldik',target='',id=null){
+  evModalSrc=target||src;
+  document.getElementById('ev-modal-t').textContent=id?'Edit Agenda':'Tambah Agenda';
   document.getElementById('ev-id').value=id||'';
   document.getElementById('ev-del').style.display=id?'inline-block':'none';
   if(id){
-    const pool=src==='parsed'?parsedEvents:EVENTS;
-    const e=pool.find(x=>x.id==id);
-    if(e){
-      document.getElementById('ev-tgl').value=e.tanggal;
-      document.getElementById('ev-judul').value=e.judul;
-      document.getElementById('ev-kat').value=e.kategori;
-      document.getElementById('ev-gf').value=e.ghurfah||'';
-      document.getElementById('ev-pj').value=e.pj||'';
-      document.getElementById('ev-cat').value=e.catatan||'';
-    }
+    const pool=evModalSrc==='parsed'?parsedEvents:EVENTS;
+    const e=pool.find(x=>x.id==id)||{};
+    document.getElementById('ev-tgl').value=e.tanggal||todayStr;
+    document.getElementById('ev-judul').value=e.judul||'';
+    document.getElementById('ev-turunan').value=e.turunan||'';
+    document.getElementById('ev-target').value=e.target||'';
+    document.getElementById('ev-kat').value=e.kategori||'kegiatan';
+    document.getElementById('ev-gf').value=e.ghurfah||'';
+    document.getElementById('ev-pj').value=e.pj||'';
+    document.getElementById('ev-rab').value=e.rab||'';
+    document.getElementById('ev-cat').value=e.catatan||'';
   } else {
     document.getElementById('ev-tgl').value=selDate||todayStr;
-    document.getElementById('ev-judul').value='';
+    ['ev-judul','ev-turunan','ev-target','ev-pj','ev-rab','ev-cat'].forEach(i=>document.getElementById(i).value='');
     document.getElementById('ev-kat').value='kegiatan';
     document.getElementById('ev-gf').value='';
-    document.getElementById('ev-pj').value='';
-    document.getElementById('ev-cat').value='';
   }
-  document.getElementById(modalId).classList.add('open');
+  document.getElementById('ev-modal').classList.add('open');
 }
+
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
 function saveEv(){
@@ -626,50 +766,45 @@ function saveEv(){
     id:id?Number(id):nextId++,
     tanggal:document.getElementById('ev-tgl').value,
     judul:document.getElementById('ev-judul').value.trim(),
+    turunan:document.getElementById('ev-turunan').value.trim(),
+    target:document.getElementById('ev-target').value.trim(),
     kategori:document.getElementById('ev-kat').value,
     ghurfah:document.getElementById('ev-gf').value,
     pj:document.getElementById('ev-pj').value.trim(),
+    rab:document.getElementById('ev-rab').value.trim(),
     catatan:document.getElementById('ev-cat').value.trim(),
   };
   if(!ev.judul||!ev.tanggal){alert('Tanggal dan judul wajib!');return;}
-  const pool=evSrc==='parsed'?parsedEvents:EVENTS;
+  const pool=evModalSrc==='parsed'?parsedEvents:EVENTS;
   if(id){const i=pool.findIndex(x=>x.id==id);if(i>-1)pool[i]=ev;}
-  else{if(evSrc==='parsed')parsedEvents.push(ev);else EVENTS.push(ev);}
+  else{pool.push(ev);}
   closeModal('ev-modal');
-  renderAll();
-  if(evSrc==='parsed') renderParsed();
+  if(evModalSrc==='parsed')renderParsed();
+  else{renderAll();}
 }
 
 function deleteEv(){
   const id=Number(document.getElementById('ev-id').value);
-  if(!id||!confirm('Hapus agenda ini?')) return;
-  if(evSrc==='parsed') parsedEvents=parsedEvents.filter(x=>x.id!==id);
+  if(!id||!confirm('Hapus agenda ini?'))return;
+  if(evModalSrc==='parsed')parsedEvents=parsedEvents.filter(x=>x.id!==id);
   else EVENTS=EVENTS.filter(x=>x.id!==id);
   closeModal('ev-modal');
-  renderAll();
-  if(evSrc==='parsed') renderParsed();
+  if(evModalSrc==='parsed')renderParsed();
+  else renderAll();
 }
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════════════
 // BOOK LAYOUT
-// ══════════════════════════════════════════
+// ════════════════════════════════════════════════
 function buildBook(){
-  const gf=document.getElementById('book-filter-g')?.value||'';
-  // Fill book filter if empty
-  const bfg=document.getElementById('book-filter-g');
-  if(bfg&&bfg.options.length<=1){
-    Object.keys(GC).forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=g;bfg.appendChild(o);});
-  }
-  const evs=gf?EVENTS.filter(e=>e.ghurfah===gf||!e.ghurfah):EVENTS;
+  const gfFilter=document.getElementById('book-gf')?.value||'';
+  const taFilter=document.getElementById('book-ta')?.value||currentTA;
+  const evs=EVENTS.filter(e=>!gfFilter||e.ghurfah===gfFilter||!e.ghurfah);
   const byM={};
   evs.forEach(e=>{const k=e.tanggal.slice(0,7);(byM[k]=byM[k]||[]).push(e);});
-
-  // Build month list: find min/max from events
   const keys=Object.keys(byM).sort();
-  if(!keys.length){document.getElementById('book-pages').innerHTML='<div style="text-align:center;padding:40px;color:#888;font-family:sans-serif">Belum ada agenda. Upload proker atau tambah manual.</div>';return;}
-
+  if(!keys.length){document.getElementById('book-pages').innerHTML='<div style="text-align:center;padding:60px;color:#888;font-family:sans-serif;font-size:14px">Belum ada agenda. Upload proker atau tambah manual terlebih dahulu.</div>';return;}
   let html='';
-
   // COVER
   html+=`<div class="page"><div class="cover">
     <div class="cov-arc"></div><div class="cov-arc2"></div>
@@ -679,128 +814,114 @@ function buildBook(){
       <div class="cov-sub">Bogor, Jawa Barat · Lembaga Ilmu & Peradaban</div>
       <div class="cov-div"></div>
       <div class="cov-ta">KALENDER AKADEMIK</div>
-      <div class="cov-ta-s">TAHUN AKADEMIK ${currentTA}</div>
+      <div class="cov-ta-s">TAHUN AKADEMIK ${taFilter}</div>
       <div class="cov-gf">${Object.keys(GC).map(g=>`<span>${g}</span>`).join('')}</div>
     </div>
-    <div class="cov-bot">BAITUL HIKMAH NUSANTARA · KALDIK ${currentTA}</div>
+    <div class="cov-bot">BAITUL HIKMAH NUSANTARA · KALDIK ${taFilter}</div>
   </div></div>`;
 
-  // MONTHLY PAGES
   keys.forEach((ym,idx)=>{
-    const [y,m]=ym.split('-');
+    const[y,m]=ym.split('-');
     const mi=parseInt(m)-1;
-    const mEvs=byM[ym]||[];
+    const mEvs=byM[ym];
     const evMap={};
     mEvs.forEach(e=>{(evMap[e.tanggal]=evMap[e.tanggal]||[]).push(e);});
     const days=new Date(parseInt(y),mi+1,0).getDate();
     const fd=new Date(parseInt(y),mi,1).getDay();
-
-    // Sidebar ghurfah
+    // Sidebar ghurfah count
     const cnt={};
     mEvs.forEach(e=>{if(e.ghurfah)cnt[e.ghurfah]=(cnt[e.ghurfah]||0)+1;});
     const sbGf=Object.entries(GC).map(([g,c])=>{
       const n=cnt[g]||0;
       return `<div class="gf-tag"><span class="gf-dot" style="background:${c};opacity:${n?1:.2}"></span><span style="flex:1;opacity:${n?1:.35}">${g.replace('Ghurfah ','')}</span>${n?`<span style="color:${c};font-weight:700;font-size:8px">${n}</span>`:''}</div>`;
     }).join('');
-
     // Cal grid
-    let calH=HARI.map(h=>`<div class="b-ch">${h}</div>`).join('');
-    for(let i=0;i<fd;i++) calH+=`<div class="b-cc b-cc e"></div>`;
+    let calH=HRI.map((h,i)=>`<div class="b-ch${i===0||i===6?' wk':''}">${h}</div>`).join('');
+    for(let i=0;i<fd;i++) calH+=`<div class="b-cc e"></div>`;
     for(let d=1;d<=days;d++){
       const ds=`${y}-${pad(mi+1)}-${pad(d)}`;
       const de=evMap[ds]||[];
       const isT=ds===todayStr;
+      const dow=new Date(parseInt(y),mi,d).getDay();
+      const isWk=dow===0||dow===6;
+      const gfCols=[...new Set(de.filter(e=>e.ghurfah).map(e=>GC[e.ghurfah]).filter(Boolean))];
+      const stripe=gfCols.length?`<div class="b-stripe">${gfCols.map(c=>`<span class="b-stripe-seg" style="background:${c}"></span>`).join('')}</div>`:'';
       const numH=isT?`<span class="b-cnt">${d}</span>`:`<span class="b-cn">${d}</span>`;
-      const dots=de.slice(0,4).map(e=>{const k=KAT[e.kategori]||KAT.lainnya;const c=e.ghurfah?(GC[e.ghurfah]||k.color):k.color;return `<span class="b-dot" style="background:${c}"></span>`;}).join('');
-      calH+=`<div class="b-cc${isT?' t':de.length?' h':''}">${numH}<div class="b-dots">${dots}</div></div>`;
+      const dots=de.slice(0,5).map(e=>{const k=KAT[e.kategori]||KAT.lainnya;const c=e.ghurfah?(GC[e.ghurfah]||k.color):k.color;return `<span class="b-dot" style="background:${c}"></span>`;}).join('');
+      calH+=`<div class="b-cc${isT?' t':de.length?' h':''}${isWk?' wk':''}">${stripe}${numH}<div class="b-dots">${dots}</div></div>`;
     }
-
-    // Agenda list 2 cols
+    // Agenda cols
     const sorted=[...mEvs].sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
     const half=Math.ceil(sorted.length/2);
     const renderCol=arr=>arr.map(e=>{
       const k=KAT[e.kategori]||KAT.lainnya;
       const gc=e.ghurfah?(GC[e.ghurfah]||k.color):k.color;
-      const d=new Date(e.tanggal);
+      const dObj=new Date(e.tanggal);
       return `<div class="b-item">
-        <div class="b-dbox"><div class="b-dn">${d.getDate()}</div><div class="b-dd">${HARI[d.getDay()]}</div></div>
+        <div class="b-dbox"><div class="b-dn">${dObj.getDate()}</div><div class="b-dd">${HRI[dObj.getDay()]}</div></div>
         <div class="b-bar" style="background:${gc}"></div>
         <div class="b-bd">
           <div class="b-bj">${e.judul}</div>
+          ${e.turunan?`<div class="b-pj" style="color:#666">${e.turunan}</div>`:''}
           ${e.ghurfah?`<div class="b-bg" style="color:${gc}">${e.ghurfah}</div>`:''}
-          <span class="b-badge" style="background:${k.bg};color:${k.color}">${k.label}</span>
+          ${e.pj?`<div class="b-pj">PJ: ${e.pj}</div>`:''}
+          ${e.rab?`<div class="b-rab">${e.rab}</div>`:''}
+          <span class="b-badge" style="background:${k.bg.replace('rgba','rgba').replace('.15','.2')};color:${k.color}">${k.label}</span>
         </div>
       </div>`;
     }).join('');
-
     html+=`<div class="page"><div class="month-page">
       <div class="sidebar">
-        <div class="sb-month">${BULAN[mi]}</div>
-        <div class="sb-year">${y}</div>
+        <div class="sb-month">${BLN[mi]}</div><div class="sb-year">${y}</div>
         <div class="sb-div"></div>
-        <div class="sb-lbl">Ghurfah Aktif</div>
-        ${sbGf}
-        <div class="sb-cnt">
-          <div class="sb-lbl">Agenda Bulan Ini</div>
+        <div class="sb-lbl">Ghurfah Aktif</div>${sbGf}
+        <div class="sb-cnt"><div class="sb-lbl">Agenda Bulan Ini</div>
           <div class="cnt-box"><div class="cnt-num">${mEvs.length}</div><div class="cnt-lbl">KEGIATAN</div></div>
         </div>
       </div>
       <div class="pg-content">
         <div class="b-cal">${calH}</div>
-        <div class="b-agenda-title">Agenda ${BULAN[mi]} ${y}</div>
+        <div class="b-agenda-title">Agenda ${BLN[mi]} ${y}</div>
         <div class="b-cols"><div>${renderCol(sorted.slice(0,half))}</div><div>${renderCol(sorted.slice(half))}</div></div>
         <div class="pg-footer">
           <span class="pg-logo">BHN · Baitul Hikmah Nusantara</span>
-          <span>Kalender Akademik ${currentTA}</span>
-          <span>${idx+2}</span>
+          <span>Kalender Akademik ${taFilter}</span><span>${idx+2}</span>
         </div>
       </div>
     </div></div>`;
   });
-
   // LEGENDA
-  html+=`<div class="page" style="display:flex;flex-direction:column;min-height:210mm;">
-    <div style="background:var(--navy);padding:16px 26px">
-      <div style="font-size:9px;letter-spacing:3px;color:rgba(201,162,39,.7);text-transform:uppercase">Panduan</div>
-      <div style="font-size:18px;font-weight:bold;color:var(--gold)">Legenda & Keterangan</div>
+  html+=`<div class="page" style="min-height:210mm;display:flex;flex-direction:column;">
+    <div style="background:linear-gradient(135deg,#1B4F72,#0f2d47);padding:18px 28px">
+      <div style="font-size:9px;letter-spacing:3px;color:rgba(201,162,39,.7);font-family:sans-serif;text-transform:uppercase">Panduan</div>
+      <div style="font-size:20px;font-weight:800;color:#C9A227;font-family:sans-serif">Legenda & Keterangan</div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px 26px;flex:1">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:22px 28px;flex:1;font-family:sans-serif">
       <div>
-        <div style="font-size:9px;letter-spacing:2px;font-weight:700;color:var(--navy);text-transform:uppercase;border-bottom:2px solid var(--gold);padding-bottom:4px;margin-bottom:10px">Kategori</div>
-        ${Object.entries(KAT).map(([k,v])=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:.5px solid #f0f0f0"><span style="width:11px;height:11px;border-radius:3px;background:${v.bg};border:1.5px solid ${v.color};flex-shrink:0;display:inline-block"></span><span style="font-size:10px;color:${v.color};font-weight:600">${v.label}</span></div>`).join('')}
+        <div style="font-size:8px;letter-spacing:2px;font-weight:700;color:#1B4F72;text-transform:uppercase;border-bottom:2px solid #C9A227;padding-bottom:4px;margin-bottom:10px">Kategori Kegiatan</div>
+        ${Object.entries(KAT).map(([k,v])=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:.5px solid #f0f0f0"><span style="width:12px;height:12px;border-radius:3px;background:${v.bg};border:1.5px solid ${v.color};flex-shrink:0;display:inline-block"></span><span style="font-size:10px;color:${v.color};font-weight:600">${v.label}</span></div>`).join('')}
       </div>
       <div>
-        <div style="font-size:9px;letter-spacing:2px;font-weight:700;color:var(--navy);text-transform:uppercase;border-bottom:2px solid var(--gold);padding-bottom:4px;margin-bottom:10px">Warna Ghurfah</div>
-        ${Object.entries(GC).map(([g,c])=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:.5px solid #f0f0f0"><span style="width:11px;height:11px;border-radius:50%;background:${c};display:inline-block;flex-shrink:0"></span><span style="font-size:10px;color:#333">${g}</span><span style="margin-left:auto;font-size:9px;color:#aaa">${EVENTS.filter(e=>e.ghurfah===g).length} agenda</span></div>`).join('')}
-        <div style="margin-top:14px;background:var(--gl);border-radius:8px;padding:12px;border-left:3px solid var(--gold)">
-          <div style="font-size:9px;font-weight:700;color:var(--navy);margin-bottom:4px">Total Agenda TA. ${currentTA}</div>
-          <div style="font-size:24px;font-weight:bold;color:var(--gold)">${EVENTS.length}</div>
+        <div style="font-size:8px;letter-spacing:2px;font-weight:700;color:#1B4F72;text-transform:uppercase;border-bottom:2px solid #C9A227;padding-bottom:4px;margin-bottom:10px">Warna Ghurfah</div>
+        ${Object.entries(GC).map(([g,c])=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:.5px solid #f0f0f0"><span style="width:12px;height:12px;border-radius:50%;background:${c};display:inline-block;flex-shrink:0"></span><span style="font-size:10px;color:#333">${g}</span><span style="margin-left:auto;font-size:9px;color:#aaa">${EVENTS.filter(e=>e.ghurfah===g).length} agenda</span></div>`).join('')}
+        <div style="margin-top:14px;background:#FEF9E7;border-radius:8px;padding:12px;border-left:3px solid #C9A227">
+          <div style="font-size:9px;font-weight:700;color:#1B4F72;margin-bottom:4px">Total Agenda TA. ${taFilter}</div>
+          <div style="font-size:26px;font-weight:800;color:#C9A227">${evs.length}</div>
           <div style="font-size:9px;color:#888">kegiatan dari ${new Set(EVENTS.filter(e=>e.ghurfah).map(e=>e.ghurfah)).size} Ghurfah BHN</div>
         </div>
       </div>
     </div>
-    <div style="padding:8px 26px;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:8px;color:#bbb">
-      <span style="font-weight:bold;color:var(--navy)">BHN · Baitul Hikmah Nusantara</span>
-      <span>Kalender Akademik ${currentTA}</span>
-      <span>${keys.length+2}</span>
+    <div style="padding:8px 28px;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:8px;color:#aaa;font-family:sans-serif">
+      <span style="font-weight:800;color:#1B4F72">BHN · Baitul Hikmah Nusantara</span>
+      <span>Kalender Akademik ${taFilter}</span><span>${keys.length+2}</span>
     </div>
   </div>`;
-
   document.getElementById('book-pages').innerHTML=html;
 }
 
-// ══════════════════════════════════════════
-// UPLOAD PROKER
-// ══════════════════════════════════════════
-function initUpload(){
-  const grid=document.getElementById('gf-chips');
-  grid.innerHTML=`<div class="g-chip all" id="chip-all" onclick="selGf('all')">📚 Semua (Gabungan Admin)</div>`;
-  Object.entries(GC).forEach(([g,c])=>{
-    grid.innerHTML+=`<div class="g-chip" id="chip-${btoa(g).replace(/=/g,'')}" onclick="selGf('${g}')"><span class="dot" style="background:${c}"></span>${g.replace('Ghurfah ','')}</div>`;
-  });
-  selGf('Ghurfah Idaroh');
-}
-
+// ════════════════════════════════════════════════
+// UPLOAD & PARSE — FORMAT BHN
+// ════════════════════════════════════════════════
 function setUpMode(m){
   upMode=m;
   document.getElementById('mt-g').classList.toggle('active',m==='ghurfah');
@@ -808,226 +929,315 @@ function setUpMode(m){
   document.getElementById('gf-picker').style.display=m==='ghurfah'?'block':'none';
   document.getElementById('gab-info').style.display=m==='gabungan'?'block':'none';
 }
-
-function selGf(g){
-  selGhurfah=g;
+function selGfChip(g){
+  selGf=g;
   document.querySelectorAll('.g-chip').forEach(el=>el.classList.remove('active'));
-  if(g==='all') document.getElementById('chip-all')?.classList.add('active');
-  else {
-    const el=document.getElementById('chip-'+btoa(g).replace(/=/g,''));
-    if(el) el.classList.add('active');
-  }
+  const el=g==='all'?document.getElementById('chip-all'):document.getElementById('chip-'+g.replace(/\W/g,'_'));
+  if(el)el.classList.add('active');
 }
-
-function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('drag');handleFile(e.dataTransfer.files[0]);}
+function onDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('drag');handleFile(e.dataTransfer.files[0]);}
 
 function handleFile(file){
-  if(!file) return;
-  if(!file.name.endsWith('.docx')){addLog('err','❌ Format harus .docx');return;}
-  const logEl=document.getElementById('up-log');
-  logEl.style.display='block'; logEl.innerHTML='';
+  if(!file)return;
+  if(!file.name.endsWith('.docx')){addLog('err','❌ Hanya file .docx yang didukung');return;}
+  document.getElementById('up-log').style.display='block';
+  document.getElementById('up-log').innerHTML='';
   addLog('info',`📂 Membaca: ${file.name} (${(file.size/1024).toFixed(1)} KB)`);
   const reader=new FileReader();
-  reader.onload=async e=>{
+  reader.onload=async ev=>{
     try{
-      const htmlRes=await mammoth.convertToHtml({arrayBuffer:e.target.result});
-      const evs=parseFromHTML(htmlRes.value);
-      addLog('ok',`✅ Total ${evs.length} agenda berhasil dibaca`);
-      parsedEvents=[...parsedEvents,...evs];
+      const htmlRes=await mammoth.convertToHtml({arrayBuffer:ev.target.result});
+      const newEvs=parseBHNFormat(htmlRes.value);
+      addLog('ok',`✅ Total ${newEvs.length} agenda berhasil dibaca dari dokumen`);
+      parsedEvents=[...parsedEvents,...newEvs];
       renderParsed();
-      document.getElementById('apply-bar').style.display=parsedEvents.length?'flex':'none';
+      const ab=document.getElementById('apply-bar');
+      ab.style.display=parsedEvents.length?'flex':'none';
       document.getElementById('found-n').textContent=parsedEvents.length;
-    }catch(err){addLog('err','❌ Gagal: '+err.message);}
+    }catch(err){addLog('err','❌ Error: '+err.message);console.error(err);}
   };
   reader.readAsArrayBuffer(file);
 }
 
-function parseFromHTML(html){
-  const evs=[];
-  const doc=new DOMParser().parseFromString(html,'text/html');
+function parseBHNFormat(html){
+  const results=[];
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(html,'text/html');
   const tables=doc.querySelectorAll('table');
-  addLog('info',`🔍 Ditemukan ${tables.length} tabel`);
-  let ctxGf=(upMode==='ghurfah'&&selGhurfah!=='all')?selGhurfah:'';
+  addLog('info',`🔍 Ditemukan ${tables.length} tabel dalam dokumen`);
+
+  // Detect ghurfah & TA from document heading
+  let docGhurfah=(upMode==='ghurfah'&&selGf!=='all')?selGf:'';
+  let docTA='';
+  const allText=doc.body.textContent;
+  // Extract TA from title
+  const taMatch=allText.match(/tahun\s+akademik\s+(\d{4}[-–]\d{4}|\d{4}\/\d{4})/i)||allText.match(/(\d{4}[-–\/]\d{4})/);
+  if(taMatch) docTA=taMatch[1].replace('/','-');
+  // Extract ghurfah name from heading
+  if(upMode==='gabungan'||selGf==='all'){
+    const gfMatch=allText.match(/(?:ghurfah|gurfah)[^\n]{0,30}/i);
+    if(gfMatch){const g=detectGhurfah(gfMatch[0]);if(g)docGhurfah=g;}
+  }
+  addLog('info',`📌 Ghurfah terdeteksi: ${docGhurfah||'(otomatis per tabel)'} · TA: ${docTA||'(dari filter)'}`);
 
   tables.forEach((tbl,ti)=>{
     const rows=tbl.querySelectorAll('tr');
-    if(rows.length<2) return;
-    // Detect ghurfah from preceding element
-    if(upMode==='gabungan'||selGhurfah==='all'){
+    if(rows.length<2){return;}
+
+    // Detect ghurfah from text before this table
+    let tblGhurfah=docGhurfah;
+    if(upMode==='gabungan'||selGf==='all'){
       let prev=tbl.previousElementSibling;
-      for(let i=0;i<5&&prev;i++,prev=prev.previousElementSibling){
-        const g=detectGf(prev.textContent);
-        if(g){ctxGf=g;break;}
+      for(let i=0;i<6&&prev;i++){
+        const g=detectGhurfah(prev.textContent);
+        if(g){tblGhurfah=g;break;}
+        prev=prev.previousElementSibling;
       }
     }
-    const hdrs=Array.from(rows[0].querySelectorAll('td,th')).map(c=>c.textContent.trim().toLowerCase());
+
+    // Map headers — BHN format:
+    // No | Nama Program | Target | Turunan Kegiatan | Penanggung Jawab | Batas Waktu | RAB
+    const hdrs=Array.from(rows[0].querySelectorAll('td,th')).map(c=>c.textContent.trim().toLowerCase().replace(/\s+/g,' '));
     const idx={};
     hdrs.forEach((h,i)=>{
-      if(/tanggal|date|waktu|batas/.test(h)) idx.tgl=i;
-      if(/kegiatan|judul|program|agenda|nama|uraian/.test(h)) idx.jdl=i;
-      if(/kategori|jenis|tipe/.test(h)) idx.kat=i;
-      if(/pj|penanggun|pelaksan/.test(h)) idx.pj=i;
-      if(/catatan|keterangan|ket|anggaran|budget/.test(h)) idx.cat=i;
-      if(/ghurfah|unit|divisi/.test(h)) idx.gf=i;
+      if(/^no$|^no\./.test(h)) idx.no=i;
+      if(/nama program|program|nama kegiatan/.test(h)) idx.program=i;
+      if(/^target|sasaran/.test(h)) idx.target=i;
+      if(/turunan|kegiatan|agenda|uraian|deskripsi/.test(h)) idx.kegiatan=i;
+      if(/penanggung|pj\b|pelaksana/.test(h)) idx.pj=i;
+      if(/batas waktu|waktu|tanggal|jadwal|deadline/.test(h)) idx.tanggal=i;
+      if(/rab|anggaran|biaya|budget/.test(h)) idx.rab=i;
     });
-    if(idx.jdl===undefined&&idx.tgl===undefined){addLog('warn',`⚠ Tabel ${ti+1}: kolom tidak dikenali`);return;}
-    let n=0;
+
+    if(idx.kegiatan===undefined&&idx.program===undefined){
+      addLog('warn',`⚠ Tabel ${ti+1}: kolom Turunan Kegiatan/Nama Program tidak ditemukan, skip`);
+      return;
+    }
+    if(idx.tanggal===undefined){
+      addLog('warn',`⚠ Tabel ${ti+1}: kolom Batas Waktu tidak ditemukan, skip`);
+      return;
+    }
+
+    let added=0;
+    let lastProgram='';
+    let lastTarget='';
+
     for(let ri=1;ri<rows.length;ri++){
       const cells=rows[ri].querySelectorAll('td,th');
-      const g=i=>i!==undefined&&cells[i]?cells[i].textContent.trim():'';
-      const judul=g(idx.jdl); if(!judul||judul.length<2) continue;
-      const tgl=parseDate(g(idx.tgl)); if(!tgl) continue;
-      const gfCell=g(idx.gf);
-      const ghurfah=gfCell?detectGf(gfCell)||ctxGf:ctxGf;
-      evs.push({id:nextId++,tanggal:tgl,judul,kategori:normKat(g(idx.kat)||judul),ghurfah,pj:g(idx.pj),catatan:g(idx.cat)});
-      n++;
+      const get=i=>(i!==undefined&&cells[i])?cells[i].textContent.trim():'';
+
+      const programRaw=get(idx.program);
+      const kegiatanRaw=get(idx.kegiatan);
+      const tanggalRaw=get(idx.tanggal);
+      const pjRaw=get(idx.pj);
+      const rabRaw=get(idx.rab);
+      const targetRaw=get(idx.target);
+
+      // Update running program/target
+      if(programRaw&&programRaw.length>2) lastProgram=programRaw;
+      if(targetRaw&&targetRaw.length>2) lastTarget=targetRaw;
+
+      // Kegiatan is the primary agenda name
+      const judulRaw=kegiatanRaw||programRaw;
+      if(!judulRaw||judulRaw.length<2) continue;
+
+      // Parse date(s) — batas waktu bisa berupa range "Jan–Jun 2026" atau multi-tanggal
+      const dates=parseDates(tanggalRaw);
+      if(!dates.length){
+        if(tanggalRaw) addLog('warn',`  Baris ${ri+1}: tanggal tidak dikenali "${tanggalRaw.slice(0,30)}"`);
+        continue;
+      }
+
+      dates.forEach(tgl=>{
+        results.push({
+          id:nextId++,
+          tanggal:tgl,
+          judul:judulRaw.length>80?judulRaw.slice(0,80)+'…':judulRaw,
+          turunan:kegiatanRaw&&programRaw?programRaw:'',
+          target:lastTarget,
+          kategori:normKat(judulRaw+' '+(lastProgram||'')),
+          ghurfah:tblGhurfah,
+          pj:pjRaw,
+          rab:rabRaw,
+          catatan:'',
+        });
+      });
+      added++;
     }
-    addLog('ok',`  Tabel ${ti+1}: ${n} agenda${ctxGf?' ('+ctxGf+')':''}`);
+    addLog('ok',`  Tabel ${ti+1}: ${added} baris → ${results.filter((_,i)=>i>=results.length-added*3).length} agenda${tblGhurfah?' ['+tblGhurfah+']':''}`);
   });
-  return evs;
+  return results;
 }
 
-function parseDate(raw){
-  if(!raw) return null;
-  raw=raw.toString().trim().replace(/\s+/g,' ');
-  let m=raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if(m) return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
-  m=raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-  if(m){const y=m[3].length===2?'20'+m[3]:m[3];return `${y}-${pad(m[2])}-${pad(m[1])}`;}
-  const BM={januari:'01',februari:'02',maret:'03',april:'04',mei:'05',juni:'06',juli:'07',agustus:'08',september:'09',oktober:'10',november:'11',desember:'12'};
-  m=raw.toLowerCase().match(/^(\d{1,2})\s+([a-z]+)\s+(\d{2,4})$/);
-  if(m&&BM[m[2]]){const y=m[3].length===2?'20'+m[3]:m[3];return `${y}-${BM[m[2]]}-${pad(m[1])}`;}
-  m=raw.toLowerCase().match(/^([a-z]+)\s+(\d{4})$/);
-  if(m&&BM[m[1]]) return `${m[2]}-${BM[m[1]]}-01`;
-  const num=parseInt(raw);
-  if(!isNaN(num)&&num>40000&&num<60000){const d=new Date((num-25569)*86400000);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
-  return null;
+// Parse various date formats including ranges
+function parseDates(raw){
+  if(!raw) return[];
+  raw=raw.trim().replace(/\s+/g,' ');
+  const results=[];
+  const BM={januari:'01',februari:'02',maret:'03',april:'04',mei:'05',juni:'06',
+    juli:'07',agustus:'08',september:'09',oktober:'10',november:'11',desember:'12'};
+
+  // Split by common separators (comma, semicolon, newline, "&")
+  const parts=raw.split(/[,;\n&]/);
+  parts.forEach(part=>{
+    part=part.trim();
+    if(!part) return;
+
+    // DD/MM/YYYY or DD-MM-YYYY
+    let m=part.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if(m){const y=m[3].length===2?'20'+m[3]:m[3];results.push(`${y}-${pad(m[2])}-${pad(m[1])}`);return;}
+    // YYYY-MM-DD
+    m=part.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if(m){results.push(part.slice(0,10));return;}
+    // "15 Juli 2026"
+    m=part.toLowerCase().match(/(\d{1,2})\s+([a-z]+)\s+(\d{2,4})/);
+    if(m&&BM[m[2]]){const y=m[3].length===2?'20'+m[3]:m[3];results.push(`${y}-${BM[m[2]]}-${pad(m[1])}`);return;}
+    // "Juli 2026" → 1st
+    m=part.toLowerCase().match(/([a-z]+)\s+(\d{4})/);
+    if(m&&BM[m[1]]){results.push(`${m[2]}-${BM[m[1]]}-01`);return;}
+    // "Oktober 2025 – Juni 2026" range → use start
+    m=part.toLowerCase().match(/([a-z]+)\s+(\d{4})\s*[–\-\/]\s*([a-z]+)?\s*(\d{4})?/);
+    if(m&&BM[m[1]]){results.push(`${m[2]}-${BM[m[1]]}-01`);return;}
+    // Just year "2026"
+    m=part.match(/\b(202\d|203\d)\b/);
+    if(m){results.push(`${m[1]}-01-01`);return;}
+    // Excel serial
+    const num=parseInt(part);
+    if(!isNaN(num)&&num>40000&&num<60000){
+      const d=new Date((num-25569)*86400000);
+      results.push(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`);
+    }
+  });
+  return results;
 }
 
-function detectGf(t){
-  if(!t) return '';
-  const v=t.toLowerCase();
-  if(v.includes('khizanah')) return "Ghurfah Khizanah";
-  if(v.includes('tarjamah')) return "Ghurfah Tarjamah";
-  if(v.includes("ta'lim")||v.includes('talim')) return "Ghurfah Ta'lim";
-  if(v.includes('bahts')||v.includes("ta'lif")||v.includes('talif')||v.includes('redaksi')) return "Ghurfah Bahts wa Ta'lif";
-  if(v.includes('munadz')||v.includes('mubah')||v.includes('arbia')) return "Ghurfah Munadzharah";
-  if(v.includes('filahah')||v.includes('pertanian')) return "Ghurfah Filahah";
-  if(v.includes('idaroh')||v.includes('admini')||v.includes('manaje')) return "Ghurfah Idaroh";
-  return '';
+function detectGhurfah(txt){
+  if(!txt) return'';
+  const v=txt.toLowerCase();
+  if(v.includes('khizanah')) return"Ghurfah Khizanah";
+  if(v.includes('tarjamah')) return"Ghurfah Tarjamah";
+  if(v.includes("ta'lim")||v.includes('talim')) return"Ghurfah Ta'lim";
+  if(v.includes('bahts')||v.includes("ta'lif")||v.includes('talif')||v.includes('redaksi')) return"Ghurfah Bahts wa Ta'lif";
+  if(v.includes('munadz')||v.includes('mubah')||v.includes('arbia')) return"Ghurfah Munadzharah";
+  if(v.includes('filahah')||v.includes('pertanian')) return"Ghurfah Filahah";
+  if(v.includes('idaroh')||v.includes('adminis')||v.includes('manaje')) return"Ghurfah Idaroh";
+  return'';
 }
 
 function normKat(v){
-  if(!v) return 'lainnya';
   v=v.toLowerCase();
-  if(/libur nasional|^libur$/.test(v)) return 'libur';
-  if(/libur sekolah|libur mad/.test(v)) return 'libur_sekolah';
-  if(/ujian|evaluasi|ikhtibar/.test(v)) return 'ujian';
-  if(/raker|rapat|syuro|koordinasi/.test(v)) return 'raker';
-  if(/kegiatan|haflah|launching/.test(v)) return 'kegiatan';
-  if(/ghurfah|program|majelis|daurah/.test(v)) return 'ghurfah';
-  return 'lainnya';
-}
-
-function renderParsed(){
-  const area=document.getElementById('parsed-area');
-  if(!parsedEvents.length){area.innerHTML='<div class="empty">📄 Upload file Word untuk melihat hasil bacaan</div>';return;}
-  const sorted=[...parsedEvents].sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
-  area.innerHTML=`<table class="res-table"><thead><tr><th>Tanggal</th><th>Kegiatan</th><th>Ghurfah</th><th>Kategori</th><th></th></tr></thead><tbody>
-  ${sorted.map(e=>{
-    const k=KAT[e.kategori]||KAT.lainnya;
-    const gc=e.ghurfah?(GC[e.ghurfah]||k.color):k.color;
-    const d=new Date(e.tanggal);
-    return `<tr><td style="white-space:nowrap;font-family:monospace;font-size:10px">${d.getDate()} ${BULAN[d.getMonth()].slice(0,3)} ${d.getFullYear()}</td>
-    <td><div style="font-weight:600;font-size:11px">${e.judul}</div>${e.catatan?`<div style="font-size:9px;color:#888">${e.catatan}</div>`:''}</td>
-    <td>${e.ghurfah?`<span class="g-badge" style="background:${gc}20;color:${gc}">${e.ghurfah.replace('Ghurfah ','')}</span>`:'-'}</td>
-    <td><span class="kat-badge" style="background:${k.bg};color:${k.color}">${k.label}</span></td>
-    <td style="white-space:nowrap">
-      <button onclick="openModal('ev-modal','parsed',${e.id})" style="background:none;border:none;cursor:pointer;font-size:12px" title="Edit">✏</button>
-      <button onclick="delParsed(${e.id})" style="background:none;border:none;cursor:pointer;font-size:12px" title="Hapus">🗑</button>
-    </td></tr>`;
-  }).join('')}</tbody></table>`;
-}
-
-function delParsed(id){if(confirm('Hapus?')){parsedEvents=parsedEvents.filter(x=>x.id!==id);renderParsed();document.getElementById('found-n').textContent=parsedEvents.length;if(!parsedEvents.length)document.getElementById('apply-bar').style.display='none';}}
-function clearParsed(){if(parsedEvents.length&&confirm('Hapus semua hasil parse?')){parsedEvents=[];renderParsed();document.getElementById('apply-bar').style.display='none';}}
-
-function applyToKaldik(){
-  const ex=new Set(EVENTS.map(e=>e.tanggal+'|'+e.judul));
-  const newOnes=parsedEvents.filter(e=>!ex.has(e.tanggal+'|'+e.judul));
-  EVENTS=[...EVENTS,...newOnes];
-  parsedEvents=[];
-  renderParsed();
-  renderAll();
-  document.getElementById('apply-bar').style.display='none';
-  addLog('ok',`✅ ${newOnes.length} agenda diterapkan ke Kaldik!`);
-  alert(`✅ ${newOnes.length} agenda berhasil diterapkan ke Kalender Akademik BHN!\n\nBeralih ke tab "Kaldik Interaktif" atau "Book Layout" untuk melihatnya.`);
+  if(/libur nasional/.test(v)) return'libur';
+  if(/libur sekolah/.test(v)) return'libur_sekolah';
+  if(/ujian|evaluasi|ikhtibar|test|tes\b|placement/.test(v)) return'ujian';
+  if(/raker|rapat|syuro|koordinasi|konsolidasi|musyawarah/.test(v)) return'raker';
+  if(/haflah|launching|terbit|pameran|wisuda/.test(v)) return'kegiatan';
+  if(/daurah|kajian|majelis|program|pelatihan|kursus|workshop/.test(v)) return'ghurfah';
+  return'kegiatan';
 }
 
 function addLog(type,msg){
   const el=document.getElementById('up-log');
-  el.innerHTML+=`<div class="log-item ${type}">${msg}</div>`;
+  const cls={ok:'log-ok',err:'log-err',info:'log-info',warn:'log-warn'}[type]||'';
+  el.innerHTML+=`<div class="${cls}">${msg}</div>`;
   el.scrollTop=el.scrollHeight;
 }
 
-// ══════════════════════════════════════════
-// ICS EXPORT
-// ══════════════════════════════════════════
-function exportICS(){
-  if(!EVENTS.length){alert('Belum ada agenda.');return;}
-  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//BHN//KaldikBHN//ID',`X-WR-CALNAME:BHN Kaldik ${currentTA}`,'CALSCALE:GREGORIAN'];
-  EVENTS.forEach(e=>{
-    lines.push('BEGIN:VEVENT',`UID:bhn-${e.id}@bhn.ac.id`,
-      `DTSTART;VALUE=DATE:${e.tanggal.replace(/-/g,'')}`,
-      `DTEND;VALUE=DATE:${e.tanggal.replace(/-/g,'')}`,
-      `SUMMARY:${e.judul}`,
-      [e.pj?'PJ: '+e.pj:'',e.catatan].filter(Boolean).join(' | ')?`DESCRIPTION:${[e.pj?'PJ: '+e.pj:'',e.catatan].filter(Boolean).join(' | ')}`:'',
-      e.ghurfah?`CATEGORIES:${e.ghurfah}`:'',
-      'END:VEVENT');
-  });
-  lines.push('END:VCALENDAR');
-  const blob=new Blob([lines.filter(Boolean).join('\r\n')],{type:'text/calendar'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`BHN_Kaldik_${currentTA.replace(/[^0-9]/g,'_')}.ics`;a.click();
+function renderParsed(){
+  const area=document.getElementById('parsed-area');
+  if(!parsedEvents.length){
+    area.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px">📄 Upload file Word untuk melihat hasil bacaan</div>';
+    return;
+  }
+  const sorted=[...parsedEvents].sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
+  area.innerHTML=`<table class="res-table">
+    <thead><tr><th>Tanggal</th><th>Judul / Kegiatan</th><th>Program</th><th>Ghurfah</th><th>PJ</th><th>RAB</th><th>Kat</th><th></th></tr></thead>
+    <tbody>${sorted.map(e=>{
+      const k=KAT[e.kategori]||KAT.lainnya;
+      const gc=e.ghurfah?(GC[e.ghurfah]||k.color):k.color;
+      const d=new Date(e.tanggal);
+      return `<tr>
+        <td style="white-space:nowrap;font-family:monospace;font-size:10px">${d.getDate()} ${BLN[d.getMonth()].slice(0,3)} ${d.getFullYear()}</td>
+        <td><div style="font-weight:600;font-size:11px;color:var(--text)">${e.judul}</div>${e.turunan?`<div style="font-size:9px;color:var(--muted);margin-top:1px">${e.turunan}</div>`:''}</td>
+        <td style="font-size:9px;color:var(--muted)">${e.target?e.target.slice(0,40)+'…':''}</td>
+        <td>${e.ghurfah?`<span class="g-badge" style="background:${gc}20;color:${gc}">${e.ghurfah.replace('Ghurfah','').trim()}</span>`:'-'}</td>
+        <td style="font-size:10px;color:var(--muted)">${e.pj||'-'}</td>
+        <td style="font-size:10px;color:#2ECC71">${e.rab||'-'}</td>
+        <td><span class="kat-badge" style="background:${k.bg};color:${k.color}">${k.label}</span></td>
+        <td style="white-space:nowrap">
+          <button onclick="openEvModal('parsed','parsed',${e.id})" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted)">✏</button>
+          <button onclick="delParsed(${e.id})" style="background:none;border:none;cursor:pointer;font-size:13px;color:#e74c3c">🗑</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
 }
 
-// ══════════════════════════════════════════
-// TEMPLATE DOWNLOAD
-// ══════════════════════════════════════════
-function dlTemplate(type){
+function delParsed(id){
+  if(!confirm('Hapus baris ini?')) return;
+  parsedEvents=parsedEvents.filter(x=>x.id!==id);
+  renderParsed();
+  document.getElementById('found-n').textContent=parsedEvents.length;
+  if(!parsedEvents.length)document.getElementById('apply-bar').style.display='none';
+}
+
+function clearParsed(){
+  if(!parsedEvents.length||!confirm('Hapus semua hasil parse?')) return;
+  parsedEvents=[];renderParsed();
+  document.getElementById('apply-bar').style.display='none';
+}
+
+function applyAll(){
+  const ex=new Set(EVENTS.map(e=>e.tanggal+'|'+e.judul));
+  const newOnes=parsedEvents.filter(e=>!ex.has(e.tanggal+'|'+e.judul));
+  EVENTS=[...EVENTS,...newOnes];
+  parsedEvents=[];renderParsed();renderAll();
+  document.getElementById('apply-bar').style.display='none';
+  addLog('ok',`✅ ${newOnes.length} agenda berhasil diterapkan ke Kaldik!`);
+  // Switch to kaldik
+  setTimeout(()=>{switchView('kaldik');alert(`✅ ${newOnes.length} agenda diterapkan ke Kalender Akademik BHN!\n\nLihat di tab Kaldik atau Book Layout.`);},300);
+}
+
+// ════════════════════════════════════════════════
+// TEMPLATE RTF
+// ════════════════════════════════════════════════
+function dlTpl(type){
   const isGab=type==='gabungan';
-  const hdrs=isGab?['No','Tanggal','Kegiatan / Judul','Kategori','Ghurfah','PJ / Penanggung Jawab','Catatan']
-                  :['No','Tanggal','Kegiatan / Judul','Kategori','PJ / Penanggung Jawab','Catatan'];
-  const rows=isGab?[
+  const hdrs=['No','Nama Program','Target','Turunan Kegiatan','Penanggung Jawab Program','Batas Waktu Pelaksanaan','RAB'];
+  const cw=1550;
+  const escRTF=s=>(s||'').replace(/\\/g,'\\\\').replace(/\{/g,'\\{').replace(/\}/g,'\\}');
+  const hdrRow=`\\trowd\\trgaph80\\trbgcolor\\red27\\green79\\blue114 ${hdrs.map((_,i)=>`\\cellx${(i+1)*cw}`).join('')}\n${hdrs.map(h=>`\\pard\\intbl\\cf1\\b\\fs18 ${escRTF(h)} \\b0\\cell`).join('\n')}\n\\row\n`;
+  const mkRow=cols=>`\\trowd\\trgaph80 ${cols.map((_,i)=>`\\cellx${(i+1)*cw}`).join('')}\n${cols.map(c=>`\\pard\\intbl\\cf0\\fs18 ${escRTF(c)} \\cell`).join('\n')}\n\\row\n`;
+  const exRows=isGab?[
     ['','=== GHURFAH KHIZANAH ===','','','','',''],
-    ['1','15/07/2026','Pengadaan Buku Baru','Program Ghurfah','Ghurfah Khizanah','Ust. Rejoyo','Target 500 judul'],
+    ['1','Menghidupkan Khizanah MAF','Target 1: Menata perpus MAF semester 1','Pendataan dan rapat koordinasi perpustakaan','Ust. Rejoyo','15/07/2026','Rp 500.000'],
     ['','=== GHURFAH TA\'LIM ===','','','','',''],
-    ['2','20/08/2026','Daurah Ilmiah Semester 1','Kegiatan BHN','Ghurfah Ta\'lim','Ust. Ardhan','Kafalah musnid'],
+    ['1','Daurah Ilmiah','Target 1: Peningkatan keilmuan PJS','Pelaksanaan Daurah Kitab Rusydul Qarib','Ust. Ardhan','20/08/2026','Rp 5.000.000'],
     ['','=== GHURFAH IDAROH ===','','','','',''],
-    ['3','01/05/2026','RAKER BHN Tahunan','Raker / Rapat','Ghurfah Idaroh','Musyrif Idaroh',''],
+    ['1','Perapihan Administrasi BHN','Target: Pengarsipan dokumen','Penyusunan Kalender Akademik BHN','Ust. Yaufiq','01/10/2026',''],
   ]:[
-    ['1','15/07/2026','Rapat Koordinasi Ghurfah','Raker','Ust. Yaufiq','Anggaran Rp 500.000'],
-    ['2','01/08/2026','Kajian Kitab Bulanan','Program Ghurfah','Ust. Ardhan','Rutin setiap Senin'],
-    ['3','15/09/2026','Haflah Akhir Semester','Kegiatan BHN','Musyrif Ghurfah',''],
+    ['1','Nama Program 1','Target 1: ...','Kegiatan turunan 1','Ust. Nama','15/07/2026','Rp 0'],
+    ['2','Nama Program 1','','Kegiatan turunan 2','Ust. Nama','20/08/2026','Rp 0'],
+    ['3','Nama Program 2','Target 2: ...','Kegiatan turunan 3','Ust. Nama','Oktober 2026',''],
+    ['4','','','Kegiatan turunan 4','Ust. Nama','15/11/2026','Rp 0'],
   ];
-  const cw=isGab?1400:1700;
-  const cell=(txt,b)=>`\\pard\\intbl${b?'\\b':''}\\fs18 ${txt.replace(/[\\{}]/g,'\\$&')}${b?'\\b0':''} \\cell`;
-  const mkRow=cols=>`\\trowd\\trgaph80${cols.map((_,i)=>`\\cellx${(i+1)*cw}`).join('')}\n${cols.map((c,i)=>cell(c,false)).join('\n')}\n\\row\n`;
-  const hRow=`\\trowd\\trgaph80\\trbgcolor\\red27\\green79\\blue114 ${hdrs.map((_,i)=>`\\cellx${(i+1)*cw}`).join('')}\n${hdrs.map(h=>`\\pard\\intbl\\b\\cf1\\fs18 ${h} \\cf0\\b0\\cell`).join('\n')}\n\\row\n`;
-  const title=isGab?'Template Proker Gabungan — Baitul Hikmah Nusantara':'Template Proker Per Ghurfah — Baitul Hikmah Nusantara';
+  const ghurfahLine=isGab?'':`GHURFAH: ___________________________________\n\n`;
   const rtf=`{\\rtf1\\ansi\\deff0
 {\\fonttbl{\\f0 Arial;}}
 {\\colortbl;\\red255\\green255\\blue255;\\red27\\green79\\blue114;\\red201\\green162\\blue39;}
-\\paperw16840\\paperh11906\\landscape\\margl720\\margr720\\margt720\\margb720
-\\f0
-\\pard\\qc\\cf2\\b\\fs28 ${title}\\par
-\\pard\\qc\\fs18\\cf0 Tahun Akademik [XXXX-XXXX] · Baitul Hikmah Nusantara · Bogor\\par
-\\pard\\fs16\\cf0\\par
-\\pard\\b\\fs18 Petunjuk Pengisian:\\b0\\par
-\\pard\\li200\\fs16 1. Kolom Tanggal: gunakan format DD/MM/YYYY (contoh: 15/07/2026)\\par
-2. Kolom Kegiatan: isi nama program/kegiatan yang jelas\\par
-3. Simpan sebagai .docx kemudian upload ke Sistem Kaldik BHN\\par
+\\paperw16840\\paperh11906\\landscape\\margl720\\margr720\\margt720\\margb720\\f0
+\\pard\\qc\\cf2\\b\\fs28 PERENCANAAN PROGRAM KERJA\\par
+\\pard\\qc\\cf2\\b\\fs26 BAITUL HIKMAH NUSANTARA TAHUN ${isGab?'[XXXX-XXXX]':'[XXXX-XXXX]'}\\par
+\\pard\\qc\\cf0\\b0\\fs20 ${ghurfahLine}\\par
+\\pard\\cf0\\b\\fs18 PETUNJUK PENGISIAN:\\b0\\par
+\\pard\\li200\\fs16
+1. Kolom \\b Nama Program\\b0 : isi nama program (boleh kosong jika lanjutan baris sebelumnya)\\par
+2. Kolom \\b Target\\b0 : isi target program (boleh kosong)\\par
+3. Kolom \\b Turunan Kegiatan\\b0 : isi detail kegiatan yang akan menjadi agenda di Kaldik \\b (WAJIB)\\b0\\par
+4. Kolom \\b Batas Waktu\\b0 : isi tanggal dalam format DD/MM/YYYY, "15 Juli 2026", atau "Oktober 2026" \\b (WAJIB)\\b0\\par
+5. Kolom \\b RAB\\b0 : isi anggaran dalam format "Rp 500.000" (boleh kosong)\\par
+6. Simpan sebagai .docx kemudian upload ke Sistem Kaldik BHN\\par
 \\par
-${hRow}${rows.map(r=>mkRow(r.concat(Array(hdrs.length-r.length).fill('')))).join('')}
+${hdrRow}${exRows.map(r=>mkRow(r)).join('')}
 \\pard\\par
 }`;
   const blob=new Blob([rtf],{type:'application/rtf'});
@@ -1037,11 +1247,33 @@ ${hRow}${rows.map(r=>mkRow(r.concat(Array(hdrs.length-r.length).fill('')))).join
   a.click();
 }
 
-// ══════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════
+// ════════════════════════════════════════════════
+// ICS EXPORT
+// ════════════════════════════════════════════════
+function doExportICS(){
+  if(!EVENTS.length){alert('Belum ada agenda.');return;}
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//BHN//KaldikBHN//ID',`X-WR-CALNAME:BHN Kaldik ${currentTA}`,'CALSCALE:GREGORIAN'];
+  EVENTS.forEach(e=>{
+    const desc=[e.turunan&&`Kegiatan: ${e.turunan}`,e.pj&&`PJ: ${e.pj}`,e.rab&&`RAB: ${e.rab}`,e.catatan].filter(Boolean).join(' | ');
+    lines.push('BEGIN:VEVENT',`UID:bhn-${e.id}@bhn.ac.id`,
+      `DTSTART;VALUE=DATE:${e.tanggal.replace(/-/g,'')}`,
+      `DTEND;VALUE=DATE:${e.tanggal.replace(/-/g,'')}`,
+      `SUMMARY:${e.judul}`,
+      desc?`DESCRIPTION:${desc}`:'',
+      e.ghurfah?`CATEGORIES:${e.ghurfah}`:'',
+      'END:VEVENT');
+  });
+  lines.push('END:VCALENDAR');
+  const blob=new Blob([lines.filter(Boolean).join('\r\n')],{type:'text/calendar'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`BHN_Kaldik_${currentTA.replace(/[^0-9]/g,'_')}.ics`;a.click();
+}
+
+// ════════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════════
+initUI();
 renderAll();
-initUpload();
 </script>
 </body>
 </html>
